@@ -33,10 +33,23 @@ typedef struct {
   float repeat;                     // repeats?
 } bloopsaphone;
 
+#define BLOOPS_HI_OCTAVE 8
+
+typedef struct {
+  char tone, octave, duration;
+} bloopsanote;
+
 typedef struct {
   bloopsaphone *P;
+  int length, capa;
+  bloopsanote *notes;
+} bloopsasong;
+
+typedef struct {
+  bloopsasong *S;
   unsigned char playing;
-  int volume, stage, time, length[3];
+  float volume;
+  int stage, time, length[3];
   double period, maxperiod, slide, dslide;
   float square, sweep;
   int phase, iphase, phasex;
@@ -64,7 +77,9 @@ bloops *bloops_new();
 void bloops_destroy(bloops *);
 bloopsaphone *bloops_load(char *);
 bloopsalive *bloops_play(bloops *, bloopsaphone *);
-void bloops_song(bloops *, char *, int);
-void bloops_song2(bloops *, char *);
+void bloops_stop(bloops *, bloopsalive *);
+bloopsasong *bloops_song(bloops *, bloopsaphone *, char *, int);
+bloopsasong *bloops_song2(bloops *, bloopsaphone *, char *);
+char *bloops_song_str(bloopsasong *);
  
 #endif

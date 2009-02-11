@@ -36,7 +36,7 @@ bloops_ready(bloops *B, bloopsalive *A, unsigned char init)
   A->atime = 0;
   A->alimit = (int)(pow(1.0f - A->P->aspeed, 2.0f) * 20000 + 32);
   if (A->P->aspeed == 1.0f)
-    A->alimit=0;
+    A->alimit = 0;
 
   if (init)
   {
@@ -65,8 +65,8 @@ bloops_ready(bloops *B, bloopsalive *A, unsigned char init)
 
     A->fphase = pow(A->P->phase, 2.0f) * 1020.0f;
     if (A->P->phase < 0.0f) A->fphase = -A->fphase;
-    A->dphase = pow(A->P->sweep, 2.0f) * 1.0f;
-    if (A->P->sweep < 0.0f) A->dphase = -A->dphase;
+    A->dphase = pow(A->P->psweep, 2.0f) * 1.0f;
+    if (A->P->psweep < 0.0f) A->dphase = -A->dphase;
     A->iphase = abs((int)A->fphase);
     A->phasex = 0;
 
@@ -94,6 +94,14 @@ bloops_play(bloops *B, bloopsaphone *P)
   return A;
 }
 
+void
+bloops_stop(bloops *B, bloopsalive *A)
+{
+  B->play = BLOOPS_STOP;
+  B->live = NULL;
+  free((void *)A);
+}
+
 static void
 bloops_synth(bloops *B, int length, float* buffer)
 {
@@ -103,8 +111,10 @@ bloops_synth(bloops *B, int length, float* buffer)
   {
     bloopsalive *A = B->live;
 
-    if (A->playing == BLOOPS_STOP)
-      break;
+    if (A->playing == BLOOPS_STOP) {
+      *buffer++ = 0.0f;
+      continue;
+    }
 
     A->repeat++;
     if (A->limit != 0 && A->repeat >= A->limit)
@@ -150,12 +160,18 @@ bloops_synth(bloops *B, int length, float* buffer)
       if (A->stage == 3)
         A->playing = BLOOPS_STOP;
     }
-    if (A->stage == 0)
-      A->volume = (float)A->time / A->length[0];
-    if (A->stage == 1)
-      A->volume = 1.0f + pow(1.0f - (float)A->time / A->length[1], 1.0f) * 2.0f * A->P->punch;
-    if (A->stage == 2)
-      A->volume = 1.0f - (float)A->time / A->length[2];
+
+    switch (A->stage) {
+      case 0:
+        A->volume = (float)A->time / A->length[0];
+      break;
+      case 1:
+        A->volume = 1.0f + pow(1.0f - (float)A->time / A->length[1], 1.0f) * 2.0f * A->P->punch;
+      break;
+      case 2:
+        A->volume = 1.0f - (float)A->time / A->length[2];
+      break;
+    }
 
     A->fphase += A->dphase;
     A->iphase = abs((int)A->fphase);
@@ -286,8 +302,6 @@ bloops_load(char* filename)
   fread(&P->decay,   1, sizeof(float), file);
   fread(&P->punch,   1, sizeof(float), file);
 
-  char filter_on;
-  fread(&filter_on, 1, sizeof(char), file);
   fread(&P->resonance, 1, sizeof(float), file);
   fread(&P->lpf,     1, sizeof(float), file);
   fread(&P->lsweep,  1, sizeof(float), file);
