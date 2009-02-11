@@ -1,0 +1,78 @@
+
+      |~~              |~~
+      |                |
+     :$: bloopsaphone :$:
+      `''''''''''''''''`
+
+  for writing chiptune-style songs
+  in c or ruby
+
+               ~
+
+  -$- ABOUT
+
+  this is a small c library for sending
+  chiptunes through portaudio, which is
+  a rather light cross-platform audio lib.
+  <http://www.portaudio.com/>
+
+  right now i'm only including ruby
+  bindings. you are welcome to contribute
+  code to hook up to other languages,
+  though.
+
+  i wrote this for h-ety h.
+  <http://hacketyhack.net/>
+
+               ~
+
+  -$- THE IDEALS,
+
+  -1- ASYNCHRONOUS.
+      You send it a song and it plays in
+      the background. You'll get an event
+      when it finishes.
+
+  -2- SMALL.
+      This is just a toy, I don't want it
+      to be very big and comprehensive.
+      Just to play little tunes with a
+      nostalgic arcade sound rather than
+      the CASIO-stylings of most MIDI.
+
+  -3- CUSTOM NOTATION.
+      Someone told me about Nokring, iMelody,
+      numbered musical notation and I did
+      some reading. They're little languages
+      for texting yourself a ringtone.
+
+  <http://en.wikipedia.org/wiki/Ring_Tone_Transfer_Language>
+  <http://homepage.mac.com/alvinmok/ericsson/emelody.html>
+
+      Bloopsaphone uses a variation on RTTTL.
+
+      Instead of commas, I use whitespace.
+      A rest is simply a number. A plus sign
+      moves everything up an octave. A minus
+      down an octave.
+
+      The Simpsons' Theme, for instance, would be:
+
+        32 + c e f# 8a g e c - 8a 8f# 8f# 8f# 2g
+
+      Which translates into:
+
+       * a 1/32nd note rest.
+       * change one octave up.
+       * C quarter note.
+       * E quarter note.
+       * F# quarter note.
+       * A eighth note.
+       * G quarter.
+       * E quarter.
+       * C one-quarter note.
+       * change one octave down.
+       * A eighth.
+       * Three F# eighths.
+       * G half note.
+
