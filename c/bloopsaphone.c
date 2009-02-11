@@ -12,6 +12,7 @@
 #include "bloopsaphone.h"
 
 #define rnd(n) (rand() % (n + 1))
+#define tempo2usec(tempo) ((int)(1000.0f / (tempo / 60.0f)))
 #define PI 3.14159265f
 
 float
@@ -325,7 +326,7 @@ bloops *
 bloops_new()
 {
   bloops *B = (bloops *)malloc(sizeof(bloops));
-  B->volume = 0.05f;
+  B->volume = 0.20f;
   B->play = BLOOPS_STOP;
   B->live = NULL;
 

@@ -41,12 +41,13 @@ typedef struct {
 
 typedef struct {
   bloopsaphone *P;
+  int tempo;
   int length, capa;
   bloopsanote *notes;
 } bloopsasong;
 
 typedef struct {
-  bloopsasong *S;
+  bloopsaphone *P;
   unsigned char playing;
   float volume;
   int stage, time, length[3];
