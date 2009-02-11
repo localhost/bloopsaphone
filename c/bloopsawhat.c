@@ -17,7 +17,10 @@ main(int argc, char *argv[])
 {
   if (argc > 1) {
     bloops *B = bloops_new();
-    bloops_song2(B, argv[1]);
+    bloopsaphone *P = bloops_load("tone.sfx");
+    bloops_play(B, P);
+    sleep(2);
+    // bloops_song2(B, argv[1]);
     bloops_destroy(B);
     return 0;
   }

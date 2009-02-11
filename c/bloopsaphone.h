@@ -62,6 +62,8 @@ typedef struct {
 //
 bloops *bloops_new();
 void bloops_destroy(bloops *);
+bloopsaphone *bloops_load(char *);
+bloopsalive *bloops_play(bloops *, bloopsaphone *);
 void bloops_song(bloops *, char *, int);
 void bloops_song2(bloops *, char *);
  
