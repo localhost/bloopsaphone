@@ -77,10 +77,12 @@ typedef struct {
 bloops *bloops_new();
 void bloops_destroy(bloops *);
 bloopsaphone *bloops_load(char *);
-bloopsalive *bloops_play(bloops *, bloopsaphone *);
-void bloops_stop(bloops *, bloopsalive *);
+bloopsalive *bloops_phone_play(bloops *, bloopsaphone *);
+void bloops_phone_stop(bloops *, bloopsalive *);
+void bloops_play(bloops *, bloopsasong *);
 bloopsasong *bloops_song(bloops *, bloopsaphone *, char *, int);
 bloopsasong *bloops_song2(bloops *, bloopsaphone *, char *);
 char *bloops_song_str(bloopsasong *);
+float bloops_note_freq(char, int);
  
 #endif

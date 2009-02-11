@@ -58,7 +58,7 @@
 
       The Simpsons' Theme, for instance, would be:
 
-        32 + c e f# 8a g e c - 8a 8f# 8f# 8f# 2g
+        32 + C E F# 8:A G E C - 8:A 8:F# 8:F# 8:F# 2:G
 
       Which translates into:
 
@@ -75,4 +75,12 @@
        * A eighth.
        * Three F# eighths.
        * G half note.
+
+      The colons are optional. They are there because you
+      can place an octave number after each note. Somehow
+      "8B6" (an eighth note of B at the sixth octave) looks
+      more confusing than "8:B6". I guess I figured that
+      the timing "8" is conceptually separate from the
+      actual tone "B6", even though they both comprise
+      the note itself.
 

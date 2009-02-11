@@ -40,6 +40,10 @@
     len = ATOI(ts, p - ts);
   }
 
+  action Aoct {
+    oct = ATOI(p - 1, 1);
+  }
+
   action Anote {
     switch (tone) {
       case 'a': case 'A':
@@ -80,11 +84,12 @@
     }
   }
 
-  len = [1-9] [0-9]? %Alen;
+  len = [1-9] [0-9]? ":"? %Alen;
   up = "+" %{ len = 1; } len?;
   down = "-" %{ len = 1; } len?;
   mod = [b#] %{ mod = p[-1]; };
-  note = (len ":")? [a-gA-G] %{ tone = p[-1]; } mod? (up | down)? %Anote;
+  oct = [1-8] %Aoct;
+  note = len? [a-gA-G] %{ tone = p[-1]; } mod? oct? %Anote;
 
   main := |*
     len => {
@@ -110,9 +115,9 @@ bloops_song(bloops *B, bloopsaphone *P, char *song, int songlen)
   S->P = P;
   S->length = 0;
   S->capa = 1024;
+  S->tempo = 120;
   S->notes = (bloopsanote *)calloc(sizeof(bloopsanote), 1024);
 
-  printf("START\n");
   p = song;
   pe = song + songlen + 1;
 
@@ -158,10 +163,10 @@ bloops_song_str(bloopsasong *song)
       }
       adv = sprintf(ptr, "%s", tone);
       ptr += adv;
-    }
 
-    adv = sprintf(ptr, "%d", (int)song->notes[i].octave);
-    ptr += adv;
+      adv = sprintf(ptr, "%d", (int)song->notes[i].octave);
+      ptr += adv;
+    }
   }
 
   return str;
@@ -173,30 +178,30 @@ bloops_note_freq(char note, int octave)
   switch (note)
   {
     case 'A': // A
-      if (octave <= 1)      return 0.0;
-      else if (octave == 2) return 0.121;
-      else if (octave == 3) return 0.175;
-      else if (octave == 4) return 0.248;
-      else if (octave == 5) return 0.353;
-      else if (octave == 6) return 0.500;
+      if (octave <= 0)      return 0.0;
+      else if (octave == 1) return 0.121;
+      else if (octave == 2) return 0.175;
+      else if (octave == 3) return 0.248;
+      else if (octave == 4) return 0.353;
+      else if (octave == 5) return 0.500;
     break;
 
     case 'b': // A# or Bb
-      if (octave <= 1)      return 0.0;
-      else if (octave == 2) return 0.125;
-      else if (octave == 3) return 0.181;
-      else if (octave == 4) return 0.255;
-      else if (octave == 5) return 0.364;
-      else if (octave == 6) return 0.515;
+      if (octave <= 0)      return 0.0;
+      else if (octave == 1) return 0.125;
+      else if (octave == 2) return 0.181;
+      else if (octave == 3) return 0.255;
+      else if (octave == 4) return 0.364;
+      else if (octave == 5) return 0.515;
     break;
 
     case 'B': // B
-      if (octave <= 1)      return 0.0;
-      else if (octave == 2) return 0.129;
-      else if (octave == 3) return 0.187;
-      else if (octave == 4) return 0.263;
-      else if (octave == 5) return 0.374;
-      else if (octave == 6) return 0.528;
+      if (octave <= 0)      return 0.0;
+      else if (octave == 1) return 0.129;
+      else if (octave == 2) return 0.187;
+      else if (octave == 3) return 0.263;
+      else if (octave == 4) return 0.374;
+      else if (octave == 5) return 0.528;
     break;
 
     case 'C': // C

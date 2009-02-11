@@ -9,10 +9,11 @@
 #include <time.h>
 #include <math.h>
 #include <portaudio.h>
+#include <unistd.h>
 #include "bloopsaphone.h"
 
 #define rnd(n) (rand() % (n + 1))
-#define tempo2usec(tempo) ((int)(1000.0f / (tempo / 60.0f)))
+#define tempo2usec(tempo) (1000000.0f / (tempo / 60.0f))
 #define PI 3.14159265f
 
 float
@@ -86,7 +87,7 @@ bloops_ready(bloops *B, bloopsalive *A, unsigned char init)
 }
 
 bloopsalive *
-bloops_play(bloops *B, bloopsaphone *P)
+bloops_phone_play(bloops *B, bloopsaphone *P)
 {
   bloopsalive *A = (bloopsalive *)malloc(sizeof(bloopsalive));
   A->P = P;
@@ -96,11 +97,33 @@ bloops_play(bloops *B, bloopsaphone *P)
 }
 
 void
-bloops_stop(bloops *B, bloopsalive *A)
+bloops_phone_stop(bloops *B, bloopsalive *A)
 {
   B->play = BLOOPS_STOP;
   B->live = NULL;
   free((void *)A);
+}
+
+void
+bloops_play(bloops *B, bloopsasong *song)
+{
+  int i;
+  bloopsalive *A;
+
+  for (i = 0; i < song->length; i++)
+  {
+    bloopsanote *note = &song->notes[i];
+    int usec = (int)(tempo2usec(song->tempo) * (4.0f / note->duration));
+    if (note->tone)
+    {
+      song->P->freq = bloops_note_freq(note->tone, (int)note->octave);
+      A = bloops_phone_play(B, song->P);
+      usleep(usec);
+      bloops_phone_stop(B, A);
+    }
+    else
+      usleep(usec);
+  }
 }
 
 static void

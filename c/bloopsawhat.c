@@ -20,6 +20,7 @@ main(int argc, char *argv[])
     bloopsaphone *P = bloops_load("tone.bloo");
     bloopsasong *song = bloops_song2(B, P, argv[1]);
     printf("%s\n", bloops_song_str(song));
+    bloops_play(B, song);
     bloops_destroy(B);
     return 0;
   }
