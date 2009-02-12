@@ -23,7 +23,7 @@
   Ai; \
 })
 
-#define NOTE S->notes[S->length]
+#define NOTE S->notes[S->nlen]
 
 #define NEXT() \
   NOTE.duration = len; \
@@ -31,7 +31,7 @@
   mod = 0; \
   tone = 0; \
   len = 4; \
-  S->length++
+  S->nlen++
 
 %%{
   machine bloopnotes;
@@ -105,21 +105,21 @@
   write data nofinal;
 }%%
 
-bloopsasong *
-bloops_song(bloops *B, bloopsaphone *P, char *song, int songlen)
+bloopsatrack *
+bloops_track(bloops *B, bloopsaphone *P, char *track, int tracklen)
 {
   int cs, act, oct = 4, len = 4;
-  bloopsasong *S = (bloopsasong *)malloc(sizeof(bloopsasong));
+  bloopsatrack *S = (bloopsatrack *)malloc(sizeof(bloopsatrack));
   char tone, mod, *p, *pe, *ts, *te, *eof = 0;
 
   S->P = P;
-  S->length = 0;
+  S->nlen = 0;
   S->capa = 1024;
   S->tempo = 120;
   S->notes = (bloopsanote *)calloc(sizeof(bloopsanote), 1024);
 
-  p = song;
-  pe = song + songlen + 1;
+  p = track;
+  pe = track + tracklen + 1;
 
   %% write init;
   %% write exec;
@@ -127,33 +127,33 @@ bloops_song(bloops *B, bloopsaphone *P, char *song, int songlen)
   return S;
 }
 
-bloopsasong *
-bloops_song2(bloops *B, bloopsaphone *P, char *song)
+bloopsatrack *
+bloops_track2(bloops *B, bloopsaphone *P, char *track)
 {
-  return bloops_song(B, P, song, strlen(song));
+  return bloops_track(B, P, track, strlen(track));
 }
 
 char *
-bloops_song_str(bloopsasong *song)
+bloops_track_str(bloopsatrack *track)
 {
-  char *str = (char *)malloc(sizeof(char) * song->length * 6), *ptr = str;
+  char *str = (char *)malloc(sizeof(char) * track->nlen * 6), *ptr = str;
   int i, adv;
 
-  for (i = 0; i < song->length; i++)
+  for (i = 0; i < track->nlen; i++)
   {
     if (ptr > str)
       strcat(ptr++, " ");
 
-    if (song->notes[i].duration != 4)
+    if (track->notes[i].duration != 4)
     {
-      adv = sprintf(ptr, "%d:", (int)song->notes[i].duration);
+      adv = sprintf(ptr, "%d:", (int)track->notes[i].duration);
       ptr += adv;
     }
 
-    if (song->notes[i].tone)
+    if (track->notes[i].tone)
     {
       char tone[3] = "\0\0\0";
-      tone[0] = song->notes[i].tone;
+      tone[0] = track->notes[i].tone;
       switch (tone[0]) {
         case 'a': tone[0] = 'A'; tone[1] = 'b'; break;
         case 'b': tone[0] = 'B'; tone[1] = 'b'; break;
@@ -164,7 +164,7 @@ bloops_song_str(bloopsasong *song)
       adv = sprintf(ptr, "%s", tone);
       ptr += adv;
 
-      adv = sprintf(ptr, "%d", (int)song->notes[i].octave);
+      adv = sprintf(ptr, "%d", (int)track->notes[i].octave);
       ptr += adv;
     }
   }

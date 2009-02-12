@@ -12,8 +12,9 @@
 #include <unistd.h>
 #include "bloopsaphone.h"
 
+#define SAMPLE_RATE 44100
 #define rnd(n) (rand() % (n + 1))
-#define tempo2usec(tempo) (1000000.0f / (tempo / 60.0f))
+#define tempo2frames(tempo) ((float)SAMPLE_RATE / (tempo / 60.0f))
 #define PI 3.14159265f
 
 float
@@ -23,7 +24,7 @@ frnd(float range)
 }
 
 void
-bloops_ready(bloops *B, bloopsalive *A, unsigned char init)
+bloops_ready(bloops *B, bloopsatrack *A, unsigned char init)
 {
   A->period = 100.0 / (A->P->freq * A->P->freq + 0.001);
   A->maxperiod = 100.0 / (A->P->limit * A->P->limit + 0.001);
@@ -80,199 +81,217 @@ bloops_ready(bloops *B, bloopsalive *A, unsigned char init)
     A->limit = (int)(pow(1.0f - A->P->repeat, 2.0f) * 20000 + 32);
     if (A->P->repeat == 0.0f)
       A->limit = 0;
-
-    B->live = A;
-    B->play = BLOOPS_PLAY;
+    A->playing = BLOOPS_PLAY;
   }
 }
 
-bloopsalive *
-bloops_phone_play(bloops *B, bloopsaphone *P)
-{
-  bloopsalive *A = (bloopsalive *)malloc(sizeof(bloopsalive));
-  A->P = P;
-  A->playing = BLOOPS_PLAY;
-  bloops_ready(B, A, 1);
-  return A;
-}
-
 void
-bloops_phone_stop(bloops *B, bloopsalive *A)
-{
-  B->play = BLOOPS_STOP;
-  B->live = NULL;
-  free((void *)A);
-}
-
-void
-bloops_play(bloops *B, bloopsasong *song)
+bloops_clear(bloops *B)
 {
   int i;
-  bloopsalive *A;
+  for (i = 0; i < BLOOPS_MAX_TRACKS; i++)
+    B->tracks[i] = NULL;
+}
 
-  for (i = 0; i < song->length; i++)
-  {
-    bloopsanote *note = &song->notes[i];
-    int usec = (int)(tempo2usec(song->tempo) * (4.0f / note->duration));
-    if (note->tone)
-    {
-      song->P->freq = bloops_note_freq(note->tone, (int)note->octave);
-      A = bloops_phone_play(B, song->P);
-      usleep(usec);
-      bloops_phone_stop(B, A);
+void
+bloops_track_at(bloops *B, bloopsatrack *track, int num)
+{
+  B->tracks[num] = track;
+}
+
+void
+bloops_play(bloops *B)
+{
+  int i;
+  for (i = 0; i < BLOOPS_MAX_TRACKS; i++)
+    if (B->tracks[i] != NULL) {
+      bloops_ready(B, B->tracks[i], 1);
+      B->tracks[i]->frames = 0;
     }
-    else
-      usleep(usec);
-  }
+  B->play = BLOOPS_PLAY;
 }
 
 static void
 bloops_synth(bloops *B, int length, float* buffer)
 {
-  int i, si;
+  int t, i, si;
 
   while (length--)
   {
-    bloopsalive *A = B->live;
+    int samplecount = 0;
+    float allsample = 0.0f;
 
-    if (A->playing == BLOOPS_STOP) {
-      *buffer++ = 0.0f;
-      continue;
-    }
-
-    A->repeat++;
-    if (A->limit != 0 && A->repeat >= A->limit)
+    for (t = 0; t < BLOOPS_MAX_TRACKS; t++)
     {
-      A->repeat = 0;
-      bloops_ready(B, A, 0);
-    }
+      bloopsatrack *A = B->tracks[t];
+      if (A == NULL)
+        continue;
 
-    A->atime++;
-    if (A->alimit != 0 && A->atime >= A->alimit)
-    {
-      A->alimit = 0;
-      A->period *= A->arp;
-    }
-
-    A->slide += A->dslide;
-    A->period *= A->slide;
-    if (A->period > A->maxperiod)
-    {
-      A->period = A->maxperiod;
-      if (A->P->limit > 0.0f)
-        A->playing = BLOOPS_STOP;
-    }
-
-    float rfperiod = A->period;
-    if (A->vdelay > 0.0f)
-    {
-      A->vibe += A->vspeed;
-      rfperiod = A->period * (1.0 + sin(A->vibe) * A->vdelay);
-    }
-
-    int period = (int)rfperiod;
-    if (period < 8) period = 8;
-    A->square += A->sweep;
-    if(A->square < 0.0f) A->square = 0.0f;
-    if(A->square > 0.5f) A->square = 0.5f;    
-
-    A->time++;
-    if (A->time > A->length[A->stage])
-    {
-      A->time = 0;
-      A->stage++;
-      if (A->stage == 3)
-        A->playing = BLOOPS_STOP;
-    }
-
-    switch (A->stage) {
-      case 0:
-        A->volume = (float)A->time / A->length[0];
-      break;
-      case 1:
-        A->volume = 1.0f + pow(1.0f - (float)A->time / A->length[1], 1.0f) * 2.0f * A->P->punch;
-      break;
-      case 2:
-        A->volume = 1.0f - (float)A->time / A->length[2];
-      break;
-    }
-
-    A->fphase += A->dphase;
-    A->iphase = abs((int)A->fphase);
-    if (A->iphase > 1023) A->iphase = 1023;
-
-    if (A->filter[7] != 0.0f)
-    {
-      A->filter[6] *= A->filter[7];
-      if (A->filter[6] < 0.00001f) A->filter[6] = 0.00001f;
-      if (A->filter[6] > 0.1f)     A->filter[6] = 0.1f;
-    }
-
-    float ssample = 0.0f;
-    for (si = 0; si < 8; si++)
-    {
-      float sample = 0.0f;
-      A->phase++;
-      if (A->phase >= period)
+      if (A->notes)
       {
-        A->phase %= period;
-        if (A->P->type == BLOOPS_NOISE)
-          for (i = 0; i < 32; i++)
-            A->noise[i] = frnd(2.0f) - 1.0f;
+        int frames = 0;
+        for (i = 0; i < A->nlen; i++)
+        {
+          bloopsanote *note = &A->notes[i];
+          if (A->frames == frames)
+          {
+            float freq = bloops_note_freq(note->tone, (int)note->octave);
+            if (freq == 0.0f) {
+              A->period = 0.0f;
+              A->playing = BLOOPS_STOP;
+            } else {
+              bloops_ready(B, A, 1);
+              A->period = 100.0 / (freq * freq + 0.001);
+            }
+          }
+          else if (A->frames < frames)
+            break;
+          frames += (int)(tempo2frames(A->tempo) * (4.0f / note->duration));
+        }
       }
 
-      float fp = (float)A->phase / period;
-      switch (A->P->type)
+      A->frames++;
+
+      if (A->playing == BLOOPS_STOP)
+        continue;
+
+      samplecount++;
+      A->repeat++;
+      if (A->limit != 0 && A->repeat >= A->limit)
       {
-        case BLOOPS_SQUARE:
-          if (fp < A->square)
-            sample = 0.5f;
-          else
-            sample = -0.5f;
+        A->repeat = 0;
+        bloops_ready(B, A, 0);
+      }
+
+      A->atime++;
+      if (A->alimit != 0 && A->atime >= A->alimit)
+      {
+        A->alimit = 0;
+        A->period *= A->arp;
+      }
+
+      A->slide += A->dslide;
+      A->period *= A->slide;
+      if (A->period > A->maxperiod)
+      {
+        A->period = A->maxperiod;
+        if (A->P->limit > 0.0f)
+          A->playing = BLOOPS_STOP;
+      }
+
+      float rfperiod = A->period;
+      if (A->vdelay > 0.0f)
+      {
+        A->vibe += A->vspeed;
+        rfperiod = A->period * (1.0 + sin(A->vibe) * A->vdelay);
+      }
+
+      int period = (int)rfperiod;
+      if (period < 8) period = 8;
+      A->square += A->sweep;
+      if(A->square < 0.0f) A->square = 0.0f;
+      if(A->square > 0.5f) A->square = 0.5f;    
+
+      A->time++;
+      if (A->time > A->length[A->stage])
+      {
+        A->time = 0;
+        A->stage++;
+        if (A->stage == 3)
+          A->playing = BLOOPS_STOP;
+      }
+
+      switch (A->stage) {
+        case 0:
+          A->volume = (float)A->time / A->length[0];
         break;
-        case BLOOPS_SAWTOOTH:
-          sample = 1.0f - fp * 2;
+        case 1:
+          A->volume = 1.0f + pow(1.0f - (float)A->time / A->length[1], 1.0f) * 2.0f * A->P->punch;
         break;
-        case BLOOPS_SINE:
-          sample = (float)sin(fp * 2 * PI);
-        break;
-        case BLOOPS_NOISE:
-          sample = A->noise[A->phase * 32 / period];
+        case 2:
+          A->volume = 1.0f - (float)A->time / A->length[2];
         break;
       }
 
-      float pp = A->filter[0];
-      A->filter[2] *= A->filter[3];
-      if (A->filter[2] < 0.0f) A->filter[2] = 0.0f;
-      if (A->filter[2] > 0.1f) A->filter[2] = 0.1f;
-      if (A->P->lpf != 1.0f)
+      A->fphase += A->dphase;
+      A->iphase = abs((int)A->fphase);
+      if (A->iphase > 1023) A->iphase = 1023;
+
+      if (A->filter[7] != 0.0f)
       {
-        A->filter[1] += (sample - A->filter[0]) * A->filter[2];
-        A->filter[1] -= A->filter[1] * A->filter[4];
+        A->filter[6] *= A->filter[7];
+        if (A->filter[6] < 0.00001f) A->filter[6] = 0.00001f;
+        if (A->filter[6] > 0.1f)     A->filter[6] = 0.1f;
       }
-      else
+
+      float ssample = 0.0f;
+      for (si = 0; si < 8; si++)
       {
-        A->filter[0] = sample;
-        A->filter[1] = 0.0f;
+        float sample = 0.0f;
+        A->phase++;
+        if (A->phase >= period)
+        {
+          A->phase %= period;
+          if (A->P->type == BLOOPS_NOISE)
+            for (i = 0; i < 32; i++)
+              A->noise[i] = frnd(2.0f) - 1.0f;
+        }
+
+        float fp = (float)A->phase / period;
+        switch (A->P->type)
+        {
+          case BLOOPS_SQUARE:
+            if (fp < A->square)
+              sample = 0.5f;
+            else
+              sample = -0.5f;
+          break;
+          case BLOOPS_SAWTOOTH:
+            sample = 1.0f - fp * 2;
+          break;
+          case BLOOPS_SINE:
+            sample = (float)sin(fp * 2 * PI);
+          break;
+          case BLOOPS_NOISE:
+            sample = A->noise[A->phase * 32 / period];
+          break;
+        }
+
+        float pp = A->filter[0];
+        A->filter[2] *= A->filter[3];
+        if (A->filter[2] < 0.0f) A->filter[2] = 0.0f;
+        if (A->filter[2] > 0.1f) A->filter[2] = 0.1f;
+        if (A->P->lpf != 1.0f)
+        {
+          A->filter[1] += (sample - A->filter[0]) * A->filter[2];
+          A->filter[1] -= A->filter[1] * A->filter[4];
+        }
+        else
+        {
+          A->filter[0] = sample;
+          A->filter[1] = 0.0f;
+        }
+        A->filter[0] += A->filter[1];
+
+        A->filter[5] += A->filter[0] - pp;
+        A->filter[5] -= A->filter[5] * A->filter[6];
+        sample = A->filter[5];
+
+        A->phaser[A->phasex & 1023] = sample;
+        sample += A->phaser[(A->phasex - A->iphase + 1024) & 1023];
+        A->phasex = (A->phasex + 1) & 1023;
+
+        ssample += sample * A->volume;
       }
-      A->filter[0] += A->filter[1];
+      ssample = ssample / 8 * B->volume;
+      ssample *= 2.0f * A->P->volume;
 
-      A->filter[5] += A->filter[0] - pp;
-      A->filter[5] -= A->filter[5] * A->filter[6];
-      sample = A->filter[5];
-
-      A->phaser[A->phasex & 1023] = sample;
-      sample += A->phaser[(A->phasex - A->iphase + 1024) & 1023];
-      A->phasex = (A->phasex + 1) & 1023;
-
-      ssample += sample * A->volume;
+      if (ssample > 1.0f)  ssample = 1.0f;
+      if (ssample < -1.0f) ssample = -1.0f;
+      allsample += ssample;
     }
-    ssample = ssample / 8 * B->volume;
-    ssample *= 2.0f * A->P->volume;
 
-    if (ssample > 1.0f)  ssample = 1.0f;
-    if (ssample < -1.0f) ssample = -1.0f;
-    *buffer++ = ssample;
+    *buffer++ = allsample;
   }
 }
 
@@ -284,7 +303,7 @@ static int bloops_port_callback(const void *inputBuffer, void *outputBuffer,
   float *out = (float*)outputBuffer;
   bloops *B = (bloops *)data;
 
-  if (B->play == BLOOPS_PLAY && B->live != NULL)
+  if (B->play == BLOOPS_PLAY)
     bloops_synth(B, framesPerBuffer, out);
   else
     for(i = 0; i < framesPerBuffer; i++)
@@ -351,7 +370,7 @@ bloops_new()
   bloops *B = (bloops *)malloc(sizeof(bloops));
   B->volume = 0.20f;
   B->play = BLOOPS_STOP;
-  B->live = NULL;
+  bloops_clear(B);
 
   if (!bloops_open++)
   {
@@ -360,7 +379,7 @@ bloops_new()
   }
 
   Pa_OpenDefaultStream(&B->stream, 0, 1, paFloat32,
-    44100, 512, bloops_port_callback, B);
+    SAMPLE_RATE, 512, bloops_port_callback, B);
   Pa_StartStream(B->stream);
   return B;
 }

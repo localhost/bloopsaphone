@@ -42,14 +42,12 @@ typedef struct {
 typedef struct {
   bloopsaphone *P;
   int tempo;
-  int length, capa;
+  int nlen, capa;
   bloopsanote *notes;
-} bloopsasong;
 
-typedef struct {
-  bloopsaphone *P;
+  int frames;
+  float volume, freq;
   unsigned char playing;
-  float volume;
   int stage, time, length[3];
   double period, maxperiod, slide, dslide;
   float square, sweep;
@@ -62,12 +60,14 @@ typedef struct {
   int repeat, limit;
   double arp;
   int atime, alimit;
-} bloopsalive;
+} bloopsatrack;
+
+#define BLOOPS_MAX_TRACKS 64
 
 typedef struct {
   void *stream;
   float volume;
-  bloopsalive *live;
+  bloopsatrack *tracks[BLOOPS_MAX_TRACKS];
   unsigned char play;
 } bloops;
 
@@ -77,12 +77,12 @@ typedef struct {
 bloops *bloops_new();
 void bloops_destroy(bloops *);
 bloopsaphone *bloops_load(char *);
-bloopsalive *bloops_phone_play(bloops *, bloopsaphone *);
-void bloops_phone_stop(bloops *, bloopsalive *);
-void bloops_play(bloops *, bloopsasong *);
-bloopsasong *bloops_song(bloops *, bloopsaphone *, char *, int);
-bloopsasong *bloops_song2(bloops *, bloopsaphone *, char *);
-char *bloops_song_str(bloopsasong *);
+void bloops_clear(bloops *);
+void bloops_track_at(bloops *, bloopsatrack *, int);
+void bloops_play(bloops *);
+bloopsatrack *bloops_track(bloops *, bloopsaphone *, char *, int);
+bloopsatrack *bloops_track2(bloops *, bloopsaphone *, char *);
+char *bloops_track_str(bloopsatrack *);
 float bloops_note_freq(char, int);
  
 #endif
