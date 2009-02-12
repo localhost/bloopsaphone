@@ -82,12 +82,20 @@
 
     aptitude install portaudio19-dev
 
-  Under MacPorts, you may need to add
-  /opt/local to your make settings:
+  To build from source isn't too bad.
+  Download PortAudio 1.9 and build it.
+  <http://www.portaudio.com/archives/pa_stable_v19_20071207.tar.gz>
 
-    make CFLAGS="-I/opt/local/include" \
-         LDFLAGS="-L/opt/local/lib" \
-         ruby
+  Like this:
+
+    $ tar xzvf pa_stable_v19_20071207.tar.gz
+    $ cd portaudio
+    $ ./configure
+    $ make
+    $ sudo make install
+
+  Then go back to Bloopsaphone and do
+  a `make ruby`.
 
                ~
 
