@@ -7,4 +7,5 @@ $CFLAGS << " -I../../c "
     unless File.exists? fn
 end
 
-create_makefile("bloopsaphone")
+have_library("portaudio")
+create_makefile("bloops")
