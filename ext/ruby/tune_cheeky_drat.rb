@@ -59,8 +59,6 @@ lead.hsweep = -0.05
 lead.resonance = 0.55
 lead.phase = 0.4
 lead.psweep = -0.05
-lead.vibe = 0.0455
-lead.vspeed = 0.255
 
 b.tune bass, %q^
   8 4a1 8a 8a 4a 4a 4c2 9c 7c 4c 8e
