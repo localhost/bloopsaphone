@@ -6,8 +6,8 @@ CC = gcc
 CFLAGS = -Wall
 DEBUG ?= 0
 ECHO = /bin/echo
-INCS = -Ic
-LIBS = -lm -lportaudio
+INCS = -Ic -I/opt/local/include
+LIBS = -L/opt/local/lib -lm -lportaudio
 RAGEL = ragel
 
 RAGELV = `${RAGEL} -v | sed "/ version /!d; s/.* version //; s/ .*//"`
@@ -39,7 +39,7 @@ clean:
 	@${ECHO} cleaning
 	@rm -f ${OBJ}
 	@rm -f c/notation.c
-	@rm -f bloopsawhat bloopsaphone.a bloopsaphone.so
+	@rm -f bloopsawhat c/bloopsawhat.o bloopsaphone.a bloopsaphone.so
 
 ruby: c/notation.c c/bloopsaphone.c
 	@${ECHO} copying c TO ext/ruby

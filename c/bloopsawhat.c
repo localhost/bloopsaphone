@@ -3,6 +3,8 @@
 // a simple commandline player
 //
 #include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
 #include "bloopsaphone.h"
 
 static void
