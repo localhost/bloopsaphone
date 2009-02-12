@@ -3,7 +3,8 @@
 // notation.rl
 // the musical notation parser
 //
-// (c) 2008 why the lucky stiff
+// (c) 2009 why the lucky stiff
+// See COPYING for the license
 //
 #include <stdio.h>
 #include <stdlib.h>
@@ -37,7 +38,7 @@
   S->nlen++
 
 
-#line 41 "c/notation.c"
+#line 42 "c/notation.c"
 static const char _bloopnotes_actions[] = {
 	0, 1, 0, 1, 3, 1, 4, 1, 
 	5, 1, 6, 1, 7, 1, 8, 1, 
@@ -118,7 +119,7 @@ static const int bloopnotes_error = 0;
 
 static const int bloopnotes_en_main = 1;
 
-#line 108 "c/notation.rl"
+#line 109 "c/notation.rl"
 
 
 bloopsatrack *
@@ -137,16 +138,16 @@ bloops_track(bloops *B, bloopsaphone *P, char *track, int tracklen)
   pe = track + tracklen + 1;
 
   
-#line 141 "c/notation.c"
+#line 142 "c/notation.c"
 	{
 	cs = bloopnotes_start;
 	ts = 0;
 	te = 0;
 	act = 0;
 	}
-#line 126 "c/notation.rl"
+#line 127 "c/notation.rl"
   
-#line 150 "c/notation.c"
+#line 151 "c/notation.c"
 	{
 	int _klen;
 	unsigned int _trans;
@@ -167,7 +168,7 @@ _resume:
 #line 1 "c/notation.rl"
 	{ts = p;}
 	break;
-#line 171 "c/notation.c"
+#line 172 "c/notation.c"
 		}
 	}
 
@@ -233,19 +234,19 @@ _eof_trans:
 		switch ( *_acts++ )
 		{
 	case 0:
-#line 41 "c/notation.rl"
+#line 42 "c/notation.rl"
 	{
     len = ATOI(ts, p - ts);
   }
 	break;
 	case 1:
-#line 45 "c/notation.rl"
+#line 46 "c/notation.rl"
 	{
     oct = ATOI(p - 1, 1);
   }
 	break;
 	case 2:
-#line 49 "c/notation.rl"
+#line 50 "c/notation.rl"
 	{
     switch (tone) {
       case 'a': case 'A':
@@ -287,45 +288,45 @@ _eof_trans:
   }
 	break;
 	case 3:
-#line 90 "c/notation.rl"
-	{ len = 1; }
-	break;
-	case 4:
 #line 91 "c/notation.rl"
 	{ len = 1; }
 	break;
-	case 5:
+	case 4:
 #line 92 "c/notation.rl"
+	{ len = 1; }
+	break;
+	case 5:
+#line 93 "c/notation.rl"
 	{ mod = p[-1]; }
 	break;
 	case 6:
-#line 94 "c/notation.rl"
+#line 95 "c/notation.rl"
 	{ tone = p[-1]; }
 	break;
 	case 9:
-#line 104 "c/notation.rl"
+#line 105 "c/notation.rl"
 	{te = p+1;}
 	break;
 	case 10:
-#line 97 "c/notation.rl"
+#line 98 "c/notation.rl"
 	{te = p;p--;{
       NOTE.tone = 0;
       NEXT();
     }}
 	break;
 	case 11:
-#line 101 "c/notation.rl"
+#line 102 "c/notation.rl"
 	{te = p;p--;{ NEXT(); }}
 	break;
 	case 12:
-#line 102 "c/notation.rl"
+#line 103 "c/notation.rl"
 	{te = p;p--;{ oct++; len = 4; }}
 	break;
 	case 13:
-#line 103 "c/notation.rl"
+#line 104 "c/notation.rl"
 	{te = p;p--;{ oct--; len = 4; }}
 	break;
-#line 329 "c/notation.c"
+#line 330 "c/notation.c"
 		}
 	}
 
@@ -338,7 +339,7 @@ _again:
 #line 1 "c/notation.rl"
 	{ts = 0;}
 	break;
-#line 342 "c/notation.c"
+#line 343 "c/notation.c"
 		}
 	}
 
@@ -357,7 +358,7 @@ _again:
 
 	_out: {}
 	}
-#line 127 "c/notation.rl"
+#line 128 "c/notation.rl"
 
   return S;
 }
@@ -523,7 +524,7 @@ bloops_note_freq(char note, int octave)
 #define KEY(name) key = (void *)&P->name
 
 
-#line 527 "c/notation.c"
+#line 528 "c/notation.c"
 static const char _bloopserial_actions[] = {
 	0, 1, 0, 1, 1, 1, 2, 1, 
 	5, 1, 6, 1, 7, 1, 8, 1, 
@@ -830,7 +831,7 @@ static const int bloopserial_error = 0;
 
 static const int bloopserial_en_main = 142;
 
-#line 344 "c/notation.rl"
+#line 345 "c/notation.rl"
 
 
 bloopsaphone *
@@ -862,16 +863,16 @@ bloops_sound_file(bloops *B, char *fname)
 
   P = bloops_square();
   
-#line 866 "c/notation.c"
+#line 867 "c/notation.c"
 	{
 	cs = bloopserial_start;
 	ts = 0;
 	te = 0;
 	act = 0;
 	}
-#line 375 "c/notation.rl"
+#line 376 "c/notation.rl"
   
-#line 875 "c/notation.c"
+#line 876 "c/notation.c"
 	{
 	int _klen;
 	unsigned int _trans;
@@ -892,7 +893,7 @@ _resume:
 #line 1 "c/notation.rl"
 	{ts = p;}
 	break;
-#line 896 "c/notation.c"
+#line 897 "c/notation.c"
 		}
 	}
 
@@ -958,150 +959,150 @@ _eof_trans:
 		switch ( *_acts++ )
 		{
 	case 0:
-#line 298 "c/notation.rl"
+#line 299 "c/notation.rl"
 	{
     fval = ATOI(ts, p - ts) * 1.0f;
   }
 	break;
 	case 1:
-#line 302 "c/notation.rl"
+#line 303 "c/notation.rl"
 	{
     fval = ATOI(pf, p - pf) * pow(0.1f, p - pf);
   }
 	break;
 	case 2:
-#line 306 "c/notation.rl"
+#line 307 "c/notation.rl"
 	{ pf = p; }
 	break;
 	case 3:
-#line 307 "c/notation.rl"
+#line 308 "c/notation.rl"
 	{ fval *= -1.0f; }
 	break;
 	case 4:
-#line 308 "c/notation.rl"
+#line 309 "c/notation.rl"
 	{ KEY(volume); }
 	break;
 	case 5:
-#line 309 "c/notation.rl"
+#line 310 "c/notation.rl"
 	{ KEY(arp); }
 	break;
 	case 6:
-#line 310 "c/notation.rl"
+#line 311 "c/notation.rl"
 	{ KEY(aspeed); }
 	break;
 	case 7:
-#line 311 "c/notation.rl"
+#line 312 "c/notation.rl"
 	{ KEY(attack); }
 	break;
 	case 8:
-#line 312 "c/notation.rl"
+#line 313 "c/notation.rl"
 	{ KEY(decay); }
 	break;
 	case 9:
-#line 313 "c/notation.rl"
+#line 314 "c/notation.rl"
 	{ KEY(dslide); }
 	break;
 	case 10:
-#line 314 "c/notation.rl"
+#line 315 "c/notation.rl"
 	{ KEY(freq); }
 	break;
 	case 11:
-#line 315 "c/notation.rl"
+#line 316 "c/notation.rl"
 	{ KEY(hpf); }
 	break;
 	case 12:
-#line 316 "c/notation.rl"
+#line 317 "c/notation.rl"
 	{ KEY(hsweep); }
 	break;
 	case 13:
-#line 317 "c/notation.rl"
+#line 318 "c/notation.rl"
 	{ KEY(limit); }
 	break;
 	case 14:
-#line 318 "c/notation.rl"
+#line 319 "c/notation.rl"
 	{ KEY(lpf); }
 	break;
 	case 15:
-#line 319 "c/notation.rl"
+#line 320 "c/notation.rl"
 	{ KEY(lsweep); }
 	break;
 	case 16:
-#line 320 "c/notation.rl"
+#line 321 "c/notation.rl"
 	{ KEY(phase); }
 	break;
 	case 17:
-#line 321 "c/notation.rl"
+#line 322 "c/notation.rl"
 	{ KEY(psweep); }
 	break;
 	case 18:
-#line 322 "c/notation.rl"
+#line 323 "c/notation.rl"
 	{ KEY(repeat); }
 	break;
 	case 19:
-#line 323 "c/notation.rl"
+#line 324 "c/notation.rl"
 	{ KEY(resonance); }
 	break;
 	case 20:
-#line 324 "c/notation.rl"
+#line 325 "c/notation.rl"
 	{ KEY(slide); }
 	break;
 	case 21:
-#line 325 "c/notation.rl"
+#line 326 "c/notation.rl"
 	{ KEY(square); }
 	break;
 	case 22:
-#line 326 "c/notation.rl"
+#line 327 "c/notation.rl"
 	{ KEY(sustain); }
 	break;
 	case 23:
-#line 327 "c/notation.rl"
+#line 328 "c/notation.rl"
 	{ KEY(sweep); }
 	break;
 	case 24:
-#line 328 "c/notation.rl"
+#line 329 "c/notation.rl"
 	{ KEY(punch); }
 	break;
 	case 25:
-#line 329 "c/notation.rl"
+#line 330 "c/notation.rl"
 	{ KEY(vibe); }
 	break;
 	case 26:
-#line 330 "c/notation.rl"
+#line 331 "c/notation.rl"
 	{ KEY(vspeed); }
 	break;
 	case 27:
-#line 331 "c/notation.rl"
+#line 332 "c/notation.rl"
 	{ KEY(vdelay); }
 	break;
 	case 28:
-#line 332 "c/notation.rl"
+#line 333 "c/notation.rl"
 	{ KEY(volume); }
 	break;
 	case 31:
-#line 336 "c/notation.rl"
+#line 337 "c/notation.rl"
 	{te = p+1;{ P->type = BLOOPS_SQUARE; }}
 	break;
 	case 32:
-#line 337 "c/notation.rl"
+#line 338 "c/notation.rl"
 	{te = p+1;{ P->type = BLOOPS_SAWTOOTH; }}
 	break;
 	case 33:
-#line 338 "c/notation.rl"
+#line 339 "c/notation.rl"
 	{te = p+1;{ P->type = BLOOPS_SINE; }}
 	break;
 	case 34:
-#line 339 "c/notation.rl"
+#line 340 "c/notation.rl"
 	{te = p+1;{ P->type = BLOOPS_NOISE; }}
 	break;
 	case 35:
-#line 335 "c/notation.rl"
+#line 336 "c/notation.rl"
 	{te = p;p--;{ *((float *)key) = fval; }}
 	break;
 	case 36:
-#line 340 "c/notation.rl"
+#line 341 "c/notation.rl"
 	{te = p;p--;}
 	break;
-#line 1105 "c/notation.c"
+#line 1106 "c/notation.c"
 		}
 	}
 
@@ -1114,7 +1115,7 @@ _again:
 #line 1 "c/notation.rl"
 	{ts = 0;}
 	break;
-#line 1118 "c/notation.c"
+#line 1119 "c/notation.c"
 		}
 	}
 
@@ -1133,7 +1134,7 @@ _again:
 
 	_out: {}
 	}
-#line 376 "c/notation.rl"
+#line 377 "c/notation.rl"
 
 done:
   fclose(fp);

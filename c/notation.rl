@@ -2,7 +2,8 @@
 // notation.rl
 // the musical notation parser
 //
-// (c) 2008 why the lucky stiff
+// (c) 2009 why the lucky stiff
+// See COPYING for the license
 //
 #include <stdio.h>
 #include <stdlib.h>
