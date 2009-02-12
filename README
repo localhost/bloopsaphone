@@ -31,6 +31,19 @@
 
                ~
 
+  -$- BUILDING FOR RUBY
+
+  If Ruby is in your path and PortAudio 1.9
+  or greater is installed:
+
+    make ruby
+
+  To install PortAudio 1.9 under Ubuntu:
+
+    aptitude install portaudio19-dev
+
+               ~
+
   -$- THE IDEALS,
 
   -1- ASYNCHRONOUS.
