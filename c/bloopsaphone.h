@@ -41,7 +41,6 @@ typedef struct {
 
 typedef struct {
   bloopsaphone *P;
-  int tempo;
   int nlen, capa;
   bloopsanote *notes;
 
@@ -66,6 +65,7 @@ typedef struct {
 
 typedef struct {
   void *stream;
+  int tempo;
   float volume;
   bloopsatrack *tracks[BLOOPS_MAX_TRACKS];
   unsigned char play;
@@ -76,10 +76,14 @@ typedef struct {
 //
 bloops *bloops_new();
 void bloops_destroy(bloops *);
+bloopsaphone *bloops_square();
 bloopsaphone *bloops_load(char *);
 void bloops_clear(bloops *);
+void bloops_tempo(bloops *, int tempo);
 void bloops_track_at(bloops *, bloopsatrack *, int);
+void bloops_track_destroy(bloopsatrack *);
 void bloops_play(bloops *);
+int bloops_is_done(bloops *);
 bloopsatrack *bloops_track(bloops *, bloopsaphone *, char *, int);
 bloopsatrack *bloops_track2(bloops *, bloopsaphone *, char *);
 char *bloops_track_str(bloopsatrack *);

@@ -94,6 +94,12 @@ bloops_clear(bloops *B)
 }
 
 void
+bloops_tempo(bloops *B, int tempo)
+{
+  B->tempo = tempo;
+}
+
+void
 bloops_track_at(bloops *B, bloopsatrack *track, int num)
 {
   B->tracks[num] = track;
@@ -111,6 +117,12 @@ bloops_play(bloops *B)
   B->play = BLOOPS_PLAY;
 }
 
+int
+bloops_is_done(bloops *B)
+{
+  return B->play == BLOOPS_STOP;
+}
+
 static void
 bloops_synth(bloops *B, int length, float* buffer)
 {
@@ -119,6 +131,7 @@ bloops_synth(bloops *B, int length, float* buffer)
   while (length--)
   {
     int samplecount = 0;
+    int moreframes = 0;
     float allsample = 0.0f;
 
     for (t = 0; t < BLOOPS_MAX_TRACKS; t++)
@@ -146,8 +159,15 @@ bloops_synth(bloops *B, int length, float* buffer)
           }
           else if (A->frames < frames)
             break;
-          frames += (int)(tempo2frames(A->tempo) * (4.0f / note->duration));
+          frames += (int)(tempo2frames(B->tempo) * (4.0f / note->duration));
         }
+
+        if (A->frames <= frames)
+          moreframes++;
+      }
+      else
+      {
+        moreframes++;
       }
 
       A->frames++;
@@ -291,6 +311,8 @@ bloops_synth(bloops *B, int length, float* buffer)
       allsample += ssample;
     }
 
+    if (moreframes == 0)
+      B->play = BLOOPS_STOP;
     *buffer++ = allsample;
   }
 }
@@ -310,6 +332,19 @@ static int bloops_port_callback(const void *inputBuffer, void *outputBuffer,
       *out++ = 0.0f;
   
   return 0;
+}
+
+bloopsaphone *
+bloops_square()
+{
+  bloopsaphone *P = (bloopsaphone *)calloc(sizeof(bloopsaphone), 1);
+  P->type = BLOOPS_SQUARE;
+  P->volume = 0.5f;
+  P->sustain = 0.3f;
+  P->decay = 0.4f;
+  P->freq = 0.3f;
+  P->lpf = 1.0f;
+  return P;
 }
 
 bloopsaphone *
@@ -368,7 +403,8 @@ bloops *
 bloops_new()
 {
   bloops *B = (bloops *)malloc(sizeof(bloops));
-  B->volume = 0.20f;
+  B->volume = 0.10f;
+  B->tempo = 120;
   B->play = BLOOPS_STOP;
   bloops_clear(B);
 
@@ -393,4 +429,12 @@ bloops_destroy(bloops *B)
 
   if (!--bloops_open)
     Pa_Terminate();
+}
+
+void
+bloops_track_destroy(bloopsatrack *track)
+{
+  if (track->notes != NULL)
+    free(track->notes);
+  free(track);
 }

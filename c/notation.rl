@@ -115,7 +115,6 @@ bloops_track(bloops *B, bloopsaphone *P, char *track, int tracklen)
   S->P = P;
   S->nlen = 0;
   S->capa = 1024;
-  S->tempo = 120;
   S->notes = (bloopsanote *)calloc(sizeof(bloopsanote), 1024);
 
   p = track;
