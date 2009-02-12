@@ -9,6 +9,11 @@
 
 static VALUE cBloops, cSound, cTrack;
 
+#ifndef RSTRING_LEN
+#define RSTRING_LEN(str) RSTRING(str)->len
+#define RSTRING_PTR(str) RSTRING(str)->ptr
+#endif
+
 //
 // Main Bloops object
 //
@@ -75,6 +80,19 @@ static void
 rb_bloops_sound_free(bloopsaphone *sound)
 {
   free(sound);
+}
+
+VALUE
+rb_bloops_load(VALUE self, VALUE fname)
+{
+  bloops *B;
+  bloopsaphone *P;
+  Data_Get_Struct(self, bloops, B);
+
+  StringValue(fname);
+  P = bloops_sound_file(B, RSTRING_PTR(fname));
+  if (P == NULL) return Qnil;
+  return Data_Wrap_Struct(cSound, NULL, rb_bloops_sound_free, P);
 }
 
 VALUE
@@ -194,6 +212,7 @@ Init_bloops()
   cBloops = rb_define_class("Bloops", rb_cObject);
   rb_define_alloc_func(cBloops, rb_bloops_alloc);
   rb_define_method(cBloops, "clear", rb_bloops_clear, 0);
+  rb_define_method(cBloops, "load", rb_bloops_load, 1);
   rb_define_method(cBloops, "play", rb_bloops_play, 0);
   rb_define_method(cBloops, "sound", rb_bloops_sound, 1);
   rb_define_method(cBloops, "stopped?", rb_bloops_is_stopped, 0);

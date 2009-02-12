@@ -5,7 +5,8 @@
       `''''''''''''''''`
 
   for writing chiptune-style songs
-  in c or ruby
+  in c or ruby. you know: the sounds
+  of ataris, gameboys and the like.
 
                ~
 
@@ -31,6 +32,45 @@
 
                ~
 
+  -$- THE BLOOPSAPHONE THEME SONG
+      (in ruby)
+
+      require 'bloops'
+
+    # the bloops o' phone
+      b = Bloops.new
+      b.tempo = 320
+
+    # melodious
+      s1 = b.sound Bloops::SQUARE
+      s1.punch = 0.5
+      s1.sustain = 0.4
+      s1.decay = 0.2
+      s1.arp = 0.4
+      s1.aspeed = 0.6
+      s1.repeat = 0.6
+      s1.phase = 0.2
+      s1.psweep = 0.2
+
+    # beats
+      s2 = b.sound Bloops::NOISE
+      s2.punch = 0.5
+      s2.sustain = 0.2
+      s2.decay = 0.4
+      s2.slide = -0.4
+      s2.phase = 0.2
+      s2.psweep = 0.2
+
+    # the tracks
+      b.tune s1, "f#5 c6 e4 b6 g5 d6 4  f#5 e5 c5 b6 c6 d6 4 "
+      b.tune s2, "4   c6 4  b5 4  4  e4 4   c6 4  b5 4  4  e4"
+
+    # and away we go
+      b.play
+      sleep 1 while !b.stopped?
+
+               ~
+
   -$- BUILDING FOR RUBY
 
   If Ruby is in your path and PortAudio 1.9
@@ -41,6 +81,21 @@
   To install PortAudio 1.9 under Ubuntu:
 
     aptitude install portaudio19-dev
+
+  To build from source isn't too bad.
+  Download PortAudio 1.9 and build it.
+  <http://www.portaudio.com/archives/pa_stable_v19_20071207.tar.gz>
+
+  Like this:
+
+    $ tar xzvf pa_stable_v19_20071207.tar.gz
+    $ cd portaudio
+    $ ./configure
+    $ make
+    $ sudo make install
+
+  Then go back to Bloopsaphone and do
+  a `make ruby`.
 
                ~
 
@@ -101,4 +156,17 @@
       the timing "8" is conceptually separate from the
       actual tone "B6", even though they both comprise
       the note itself.
+
+  -4- SERIALIZE SOUNDS.
+      To accomodate passing instruments between
+      ruby and c, bloopsaphone comes with a tiny
+      file format for describing sounds.
+
+      You can find examples of these in the sounds/
+      folder in this distro. Possible sound types
+      are 'square', 'sawtooth', 'sine' and 'noise'.
+      All other settings go from 0.0 to 1.0.
+
+      The 'freq' setting is only used if the sound
+      is played without a tune.
 

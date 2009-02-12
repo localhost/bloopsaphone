@@ -2,11 +2,14 @@
 // notation.rl
 // the musical notation parser
 //
-// (c) 2008 why the lucky stiff
+// (c) 2009 why the lucky stiff
+// See COPYING for the license
 //
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
+#include <sys/stat.h>
 #include "bloopsaphone.h"
 
 #define ATOI(X,N) ({ \
@@ -282,4 +285,164 @@ bloops_note_freq(char note, int octave)
   }
 
   return 0.0;
+}
+
+#define KEY(name) key = (void *)&P->name
+
+%%{
+  machine bloopserial;
+
+  action ival {
+    ival = ATOI(ts, p - ts);
+  }
+
+  action fval1 {
+    fval = ATOI(ts, p - ts) * 1.0f;
+  }
+
+  action fval2 {
+    fval = ATOI(pf, p - pf) * pow(0.1f, p - pf);
+  }
+
+  dec = [0-9]+ %fval1 "." %{ pf = p; } [0-9]+ %fval2;
+  float = ("-" dec %{ fval *= -1.0f; } | dec);
+  key = "volume" %{ KEY(volume); } |
+        "arp" %{ KEY(arp); } |
+        "aspeed" %{ KEY(aspeed); } |
+        "attack" %{ KEY(attack); } |
+        "decay" %{ KEY(decay); } |
+        "dslide" %{ KEY(dslide); } |
+        "freq" %{ KEY(freq); } |
+        "hpf" %{ KEY(hpf); } |
+        "hsweep" %{ KEY(hsweep); } |
+        "limit" %{ KEY(limit); } |
+        "lpf" %{ KEY(lpf); } |
+        "lsweep" %{ KEY(lsweep); } |
+        "phase" %{ KEY(phase); } |
+        "psweep" %{ KEY(psweep); } |
+        "repeat" %{ KEY(repeat); } |
+        "resonance" %{ KEY(resonance); } |
+        "slide" %{ KEY(slide); } |
+        "square" %{ KEY(square); } |
+        "sustain" %{ KEY(sustain); } |
+        "sweep" %{ KEY(sweep); } |
+        "punch" %{ KEY(punch); } |
+        "vibe" %{ KEY(vibe); } |
+        "vspeed" %{ KEY(vspeed); } |
+        "vdelay" %{ KEY(vdelay); } |
+        "volume" %{ KEY(volume); };
+
+  main := |*
+    key space+ float space*   => { *((float *)key) = fval; };
+    "type" space+ "square"    => { P->type = BLOOPS_SQUARE; };
+    "type" space+ "sawtooth"  => { P->type = BLOOPS_SAWTOOTH; };
+    "type" space+ "sine"      => { P->type = BLOOPS_SINE; };
+    "type" space+ "noise"     => { P->type = BLOOPS_NOISE; };
+    space+;
+  *|;
+
+  write data nofinal;
+}%%
+
+bloopsaphone *
+bloops_sound_file(bloops *B, char *fname)
+{
+  FILE *fp;
+  struct stat stats;
+  int cs, act, len;
+  float fval;
+  void *key;
+  char *str, *p, *pe, *pf, *ts, *te, *eof = 0;
+  bloopsaphone *P;
+
+  if (stat(fname, &stats) == -1)
+    return NULL;
+
+  fp = fopen(fname, "rb");
+  if (!fp)
+    return NULL;
+
+  len = stats.st_size;
+  str = (char *)malloc(stats.st_size + 1);
+  if (fread(str, 1, stats.st_size, fp) != stats.st_size)
+    goto done;
+
+  p = str;
+  pe = str + len + 1;
+  p[len] = '\0';
+
+  P = bloops_square();
+  %% write init;
+  %% write exec;
+
+done:
+  fclose(fp);
+  return P;
+}
+
+char *
+bloops_sound_str(bloops *B, bloopsaphone *P)
+{
+  char *lines = (char *)malloc(4096), *str = lines;
+  bloopsaphone *sq = bloops_square();
+  if (P->type == BLOOPS_SQUARE)
+    str += sprintf(str, "type square\n");
+  else if (P->type == BLOOPS_SAWTOOTH)
+    str += sprintf(str, "type sawtooth\n");
+  else if (P->type == BLOOPS_SINE)
+    str += sprintf(str, "type sine\n");
+  else if (P->type == BLOOPS_NOISE)
+    str += sprintf(str, "type noise\n");
+
+  if (P->volume != sq->volume)
+    str += sprintf(str, "volume %0.3f\n", P->volume);
+  if (P->punch != sq->punch)
+    str += sprintf(str, "punch %0.3f\n", P->punch);
+  if (P->attack != sq->attack)
+    str += sprintf(str, "attack %0.3f\n", P->attack);
+  if (P->sustain != sq->sustain)
+    str += sprintf(str, "sustain %0.3f\n", P->sustain);
+  if (P->decay != sq->decay)
+    str += sprintf(str, "decay %0.3f\n", P->decay);
+  if (P->freq != sq->freq)
+    str += sprintf(str, "freq %0.3f\n", P->freq);
+  if (P->limit != sq->limit)
+    str += sprintf(str, "limit %0.3f\n", P->limit);
+  if (P->slide != sq->slide)
+    str += sprintf(str, "slide %0.3f\n", P->slide);
+  if (P->dslide != sq->dslide)
+    str += sprintf(str, "dslide %0.3f\n", P->dslide);
+  if (P->square != sq->square)
+    str += sprintf(str, "square %0.3f\n", P->square);
+  if (P->sweep != sq->sweep)
+    str += sprintf(str, "sweep %0.3f\n", P->sweep);
+  if (P->vibe != sq->vibe)
+    str += sprintf(str, "vibe %0.3f\n", P->vibe);
+  if (P->vspeed != sq->vspeed)
+    str += sprintf(str, "vspeed %0.3f\n", P->vspeed);
+  if (P->vdelay != sq->vdelay)
+    str += sprintf(str, "vdelay %0.3f\n", P->vdelay);
+  if (P->lpf != sq->lpf)
+    str += sprintf(str, "lpf %0.3f\n", P->lpf);
+  if (P->lsweep != sq->lsweep)
+    str += sprintf(str, "lsweep %0.3f\n", P->lsweep);
+  if (P->resonance != sq->resonance)
+    str += sprintf(str, "resonance %0.3f\n", P->resonance);
+  if (P->hpf != sq->hpf)
+    str += sprintf(str, "hpf %0.3f\n", P->hpf);
+  if (P->hsweep != sq->hsweep)
+    str += sprintf(str, "hsweep %0.3f\n", P->hsweep);
+  if (P->arp != sq->arp)
+    str += sprintf(str, "arp %0.3f\n", P->arp);
+  if (P->aspeed != sq->aspeed)
+    str += sprintf(str, "aspeed %0.3f\n", P->aspeed);
+  if (P->phase != sq->phase)
+    str += sprintf(str, "phase %0.3f\n", P->phase);
+  if (P->psweep != sq->psweep)
+    str += sprintf(str, "psweep %0.3f\n", P->psweep);
+  if (P->repeat != sq->repeat)
+    str += sprintf(str, "repeat %0.3f\n", P->repeat);
+
+  free(sq);
+  return lines;
 }

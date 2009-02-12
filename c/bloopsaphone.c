@@ -2,6 +2,9 @@
 // bloopsaphone.c
 // the chiptune maker for portaudio
 // (with bindings for ruby)
+// 
+// (c) 2009 why the lucky stiff
+// See COPYING for the license
 //
 #include <stdio.h>
 #include <stdlib.h>

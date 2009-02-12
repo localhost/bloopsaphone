@@ -3,11 +3,14 @@ OBJ = ${SRC:.c=.o}
 
 PREFIX = /usr/local
 CC = gcc
-CFLAGS = -Wall
+CFLAGS ?= -Wall
 DEBUG ?= 0
 ECHO = /bin/echo
-INCS = -Ic -I/opt/local/include
+INCS = -Ic
 LIBS = -L/opt/local/lib -lm -lportaudio
+INCS = -Ic
+LDFLAGS ?=
+LIBS = -lm -lportaudio
 RAGEL = ragel
 
 RAGELV = `${RAGEL} -v | sed "/ version /!d; s/.* version //; s/ .*//"`
@@ -20,7 +23,7 @@ bloopsaphone: bloopsawhat
 
 bloopsawhat: ${OBJ} c/bloopsawhat.o
 	@${ECHO} LINK bloopsawhat
-	@${CC} ${CFLAGS} ${OBJ} c/bloopsawhat.o ${LIBS} -o bloopsawhat
+	@${CC} ${CFLAGS} ${OBJ} c/bloopsawhat.o ${LDFLAGS} ${LIBS} -o bloopsawhat
 
 c/notation.c: c/notation.rl
 	@if [ "${RAGELV}" != "6.3" ]; then \
@@ -38,12 +41,10 @@ c/notation.c: c/notation.rl
 clean:
 	@${ECHO} cleaning
 	@rm -f ${OBJ}
-	@rm -f c/notation.c
-	@rm -f bloopsawhat c/bloopsawhat.o bloopsaphone.a bloopsaphone.so
+	@rm -f c/notation.c c/*.o
+	@rm -f bloopsawhat bloopsaphone.a bloopsaphone.so
 
 ruby: c/notation.c c/bloopsaphone.c
-	@${ECHO} copying c TO ext/ruby
-	@cp c/notation.c c/bloopsaphone.c c/bloopsaphone.h ext/ruby
 	@${ECHO} RUBY extconf.rb
 	@cd ext/ruby && ruby extconf.rb && make
 	@${ECHO} ""
