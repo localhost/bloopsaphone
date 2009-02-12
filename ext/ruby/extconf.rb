@@ -1,10 +1,12 @@
 require 'mkmf'
+require 'fileutils'
 
 $CFLAGS << " -I../../c "
 
-%w[notation.c bloopsaphone.c].each do |fn|
+%w[../../c/notation.c ../../c/bloopsaphone.c ../../c/bloopsaphone.h].each do |fn|
   abort "!! ERROR !!\n** #{fn} not found; type 'make ruby' in the top directory\n\n" \
     unless File.exists? fn
+  FileUtils.cp(fn, ".")
 end
 
 have_library("portaudio")

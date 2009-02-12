@@ -43,8 +43,6 @@ clean:
 	@rm -f bloopsawhat bloopsaphone.a bloopsaphone.so
 
 ruby: c/notation.c c/bloopsaphone.c
-	@${ECHO} copying c TO ext/ruby
-	@cp c/notation.c c/bloopsaphone.c c/bloopsaphone.h ext/ruby
 	@${ECHO} RUBY extconf.rb
 	@cd ext/ruby && ruby extconf.rb && make
 	@${ECHO} ""
