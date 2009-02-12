@@ -149,3 +149,16 @@
       actual tone "B6", even though they both comprise
       the note itself.
 
+  -4- SERIALIZE SOUNDS.
+      To accomodate passing instruments between
+      ruby and c, bloopsaphone comes with a tiny
+      file format for describing sounds.
+
+      You can find examples of these in the sounds/
+      folder in this distro. Possible sound types
+      are 'square', 'sawtooth', 'sine' and 'noise'.
+      All other settings go from 0.0 to 1.0.
+
+      The 'freq' setting is only used if the sound
+      is played without a tune.
+
