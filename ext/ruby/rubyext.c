@@ -9,6 +9,11 @@
 
 static VALUE cBloops, cSound, cTrack;
 
+#ifndef RSTRING_LEN
+#define RSTRING_LEN(str) RSTRING(str)->len
+#define RSTRING_PTR(str) RSTRING(str)->ptr
+#endif
+
 //
 // Main Bloops object
 //
