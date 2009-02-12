@@ -5,7 +5,8 @@
       `''''''''''''''''`
 
   for writing chiptune-style songs
-  in c or ruby
+  in c or ruby. you know: the sounds
+  of ataris, gameboys and the like.
 
                ~
 
@@ -41,6 +42,13 @@
   To install PortAudio 1.9 under Ubuntu:
 
     aptitude install portaudio19-dev
+
+  Under MacPorts, you may need to add
+  /opt/local to your make settings:
+
+    make CFLAGS="-I/opt/local/include" \
+         LDFLAGS="-L/opt/local/lib" \
+         ruby
 
                ~
 

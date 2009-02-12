@@ -3,10 +3,11 @@ OBJ = ${SRC:.c=.o}
 
 PREFIX = /usr/local
 CC = gcc
-CFLAGS = -Wall
+CFLAGS ?= -Wall
 DEBUG ?= 0
 ECHO = /bin/echo
 INCS = -Ic
+LDFLAGS ?=
 LIBS = -lm -lportaudio
 RAGEL = ragel
 
@@ -20,7 +21,7 @@ bloopsaphone: bloopsawhat
 
 bloopsawhat: ${OBJ} c/bloopsawhat.o
 	@${ECHO} LINK bloopsawhat
-	@${CC} ${CFLAGS} ${OBJ} c/bloopsawhat.o ${LIBS} -o bloopsawhat
+	@${CC} ${CFLAGS} ${OBJ} c/bloopsawhat.o ${LDFLAGS} ${LIBS} -o bloopsawhat
 
 c/notation.c: c/notation.rl
 	@if [ "${RAGELV}" != "6.3" ]; then \
@@ -38,7 +39,7 @@ c/notation.c: c/notation.rl
 clean:
 	@${ECHO} cleaning
 	@rm -f ${OBJ}
-	@rm -f c/notation.c
+	@rm -f c/notation.c c/*.o
 	@rm -f bloopsawhat bloopsaphone.a bloopsaphone.so
 
 ruby: c/notation.c c/bloopsaphone.c
