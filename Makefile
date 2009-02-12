@@ -41,4 +41,10 @@ clean:
 	@rm -f c/notation.c
 	@rm -f bloopsawhat bloopsaphone.a bloopsaphone.so
 
-.PHONY: all bloopsaphone clean rebuild
+ruby: c/notation.c c/bloopsaphone.c
+	@${ECHO} copying c -> ext/ruby
+	@cp c/notation.c c/bloopsaphone.c c/bloopsaphone.h ext/ruby
+	@${ECHO} RUBY extconf.rb
+	@cd ext/ruby && ruby extconf.rb && make
+
+.PHONY: all bloopsaphone clean rebuild ruby
