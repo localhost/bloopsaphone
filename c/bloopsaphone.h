@@ -44,7 +44,7 @@ typedef struct {
   int nlen, capa;
   bloopsanote *notes;
 
-  int frames;
+  int frames, nextnote[2];
   float volume, freq;
   unsigned char playing;
   int stage, time, length[3];

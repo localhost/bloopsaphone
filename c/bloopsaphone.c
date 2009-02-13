@@ -116,6 +116,8 @@ bloops_play(bloops *B)
     if (B->tracks[i] != NULL) {
       bloops_ready(B, B->tracks[i], 1);
       B->tracks[i]->frames = 0;
+      B->tracks[i]->nextnote[0] = 0;
+      B->tracks[i]->nextnote[1] = 0;
     }
   B->play = BLOOPS_PLAY;
 }
@@ -145,12 +147,11 @@ bloops_synth(bloops *B, int length, float* buffer)
 
       if (A->notes)
       {
-        int frames = 0;
-        for (i = 0; i < A->nlen; i++)
+        if (A->frames == A->nextnote[0])
         {
-          bloopsanote *note = &A->notes[i];
-          if (A->frames == frames)
+          if (A->nextnote[1] < A->nlen)
           {
+            bloopsanote *note = &A->notes[A->nextnote[1]];
             float freq = bloops_note_freq(note->tone, (int)note->octave);
             if (freq == 0.0f) {
               A->period = 0.0f;
@@ -159,13 +160,13 @@ bloops_synth(bloops *B, int length, float* buffer)
               bloops_ready(B, A, 1);
               A->period = 100.0 / (freq * freq + 0.001);
             }
+
+            A->nextnote[0] += (int)(tempo2frames(B->tempo) * (4.0f / note->duration));
           }
-          else if (A->frames < frames)
-            break;
-          frames += (int)(tempo2frames(B->tempo) * (4.0f / note->duration));
+          A->nextnote[1]++;
         }
 
-        if (A->frames <= frames)
+        if (A->nextnote[1] <= A->nlen)
           moreframes++;
       }
       else
