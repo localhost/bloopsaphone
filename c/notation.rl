@@ -34,6 +34,8 @@
   mod = 0; \
   tone = 0; \
   len = 4; \
+  fxcmd = 0; \
+  fxval = 0; \
   S->nlen++
 
 %%{
@@ -87,12 +89,49 @@
     }
   }
 
+  action Afx {
+    NOTE.fxcmd[fxcmd] = 1;
+    NOTE.fxval[fxcmd] = fxval;
+    // printf("\nfxcmd: %u, fxval: %0.3f | ", fxcmd, NOTE.fxval[fxcmd]);
+  }
+
+  action fxval1 {
+    fxval = atoi(p-1) * 1.0f;
+  }
+
+  action fxval2 {
+    fxval += ATOI(pf, p - pf) * pow(0.1f, p - pf);
+  }
+
+  dec = digit+ %fxval1 ("." %{ pf = p; } digit+ )? %fxval2;
+  float = ("-" dec %{ fxval *= -1.0f; } | dec);
+  fxcmd = "volume" %{ fxcmd = BLOOPS_FX_VOLUME; } |
+          "punch" %{ fxcmd = BLOOPS_FX_PUNCH; } |
+          "attack" %{ fxcmd = BLOOPS_FX_ATTACK; } |
+          "sustain" %{ fxcmd = BLOOPS_FX_SUSTAIN; } |
+          "decay" %{ fxcmd = BLOOPS_FX_DECAY; } |
+          "square" %{ fxcmd = BLOOPS_FX_SQUARE; } |
+          "sweep" %{ fxcmd = BLOOPS_FX_SWEEP; } |
+          "vibe" %{ fxcmd = BLOOPS_FX_VIBE; } |
+          "vspeed" %{ fxcmd = BLOOPS_FX_VSPEED; } |
+          "vdelay" %{ fxcmd = BLOOPS_FX_VDELAY; } |
+          "lpf" %{ fxcmd = BLOOPS_FX_LPF; } |
+          "lsweep" %{ fxcmd = BLOOPS_FX_LSWEEP; } |
+          "resonance" %{ fxcmd = BLOOPS_FX_RESONANCE; } |
+          "hpf" %{ fxcmd = BLOOPS_FX_HPF; } |
+          "hsweep" %{ fxcmd = BLOOPS_FX_HSWEEP; } |
+          "arp" %{ fxcmd = BLOOPS_FX_ARP; } |
+          "aspeed" %{ fxcmd = BLOOPS_FX_ASPEED; } |
+          "phase" %{ fxcmd = BLOOPS_FX_PHASE; } |
+          "psweep" %{ fxcmd = BLOOPS_FX_PSWEEP; } |
+          "repeat" %{ fxcmd = BLOOPS_FX_REPEAT; };
+
   len = [1-9] [0-9]? ":"? %Alen;
   up = "+" %{ len = 1; } len?;
   down = "-" %{ len = 1; } len?;
   mod = [b#] %{ mod = p[-1]; };
   oct = [1-8] %Aoct;
-  note = len? [a-gA-G] %{ tone = p[-1]; } mod? oct? %Anote;
+  note = len? [a-gA-G] %{ tone = p[-1]; } mod? oct? ("[" fxcmd (":"|space*) float "]" %Afx )* %Anote;
 
   main := |*
     len => {
@@ -113,7 +152,9 @@ bloops_track(bloops *B, bloopsaphone *P, char *track, int tracklen)
 {
   int cs, act, oct = 4, len = 4;
   bloopsatrack *S = (bloopsatrack *)malloc(sizeof(bloopsatrack));
-  char tone, mod, *p, *pe, *ts, *te, *eof = 0;
+  char tone, mod, *p, *pe, *pf, *ts, *te, *eof = 0;
+  int fxcmd = 0;
+  float fxval = 0;
 
   S->P = P;
   S->nlen = 0;
@@ -138,11 +179,17 @@ bloops_track2(bloops *B, bloopsaphone *P, char *track)
 char *
 bloops_track_str(bloopsatrack *track)
 {
-  char *str = (char *)malloc(sizeof(char) * track->nlen * 6), *ptr = str;
-  int i, adv;
+  int bufsize = sizeof(char) * (track->nlen * 6 + 1024);
+  char *str = (char *)malloc(bufsize), *ptr = str;
+  int i, j, adv = 0;
 
   for (i = 0; i < track->nlen; i++)
   {
+    if (ptr - str + adv + sizeof(char) * 256 > bufsize) {
+      bufsize += sizeof(char) * 1024;
+      realloc(str, bufsize);
+    }
+
     if (ptr > str)
       strcat(ptr++, " ");
 
@@ -168,10 +215,44 @@ bloops_track_str(bloopsatrack *track)
 
       adv = sprintf(ptr, "%d", (int)track->notes[i].octave);
       ptr += adv;
+      for (j = 0; j <= BLOOPS_MAX_FX; j++) {
+        if (track->notes[i].fxcmd[j] == 1) {
+          adv = sprintf(ptr, "[%s %0.3f]", bloops_fxcmd_name(j), track->notes[i].fxval[j]);
+          ptr += adv;
+        }
+      }
     }
   }
 
   return str;
+}
+
+char *
+bloops_fxcmd_name(int fxcmd) {
+  char *fxname = "\0";
+  switch (fxcmd) {
+    case BLOOPS_FX_VOLUME:    fxname = "volume"; break;
+    case BLOOPS_FX_PUNCH:     fxname = "punch"; break;
+    case BLOOPS_FX_ATTACK:    fxname = "attack"; break;
+    case BLOOPS_FX_SUSTAIN:   fxname = "sustain"; break;
+    case BLOOPS_FX_DECAY:     fxname = "decay"; break;
+    case BLOOPS_FX_SQUARE:    fxname = "square"; break;
+    case BLOOPS_FX_SWEEP:     fxname = "sweep"; break;
+    case BLOOPS_FX_VIBE:      fxname = "vibe"; break;
+    case BLOOPS_FX_VSPEED:    fxname = "vspeed"; break;
+    case BLOOPS_FX_VDELAY:    fxname = "vdelay"; break;
+    case BLOOPS_FX_LPF:       fxname = "lpf"; break;
+    case BLOOPS_FX_LSWEEP:    fxname = "lsweep"; break;
+    case BLOOPS_FX_RESONANCE: fxname = "resonance"; break;
+    case BLOOPS_FX_HPF:       fxname = "hpf"; break;
+    case BLOOPS_FX_HSWEEP:    fxname = "hsweep"; break;
+    case BLOOPS_FX_ARP:       fxname = "arp"; break;
+    case BLOOPS_FX_ASPEED:    fxname = "aspeed"; break;
+    case BLOOPS_FX_PHASE:     fxname = "phase"; break;
+    case BLOOPS_FX_PSWEEP:    fxname = "psweep"; break;
+    case BLOOPS_FX_REPEAT:    fxname = "repeat"; break;
+  }
+  return fxname;
 }
 
 float
