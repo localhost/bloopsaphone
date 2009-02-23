@@ -508,6 +508,22 @@ void
 bloops_track_destroy(bloopsatrack *track)
 {
   if (track->notes != NULL)
-    free(track->notes);
+    bloops_notes_destroy(track->notes, track->nlen);
   free(track);
+}
+
+void bloops_notes_destroy(bloopsanote *notes, int nlen)
+{
+  bloopsafx *fx, *n;
+  int i;
+
+  for (i = 0; i < nlen; i++) {
+    n = fx = (bloopsafx *)notes[i].FX;
+    while ((fx = n)) {
+      n = (bloopsafx *)fx->next;
+      free(fx);
+    }
+  }
+
+  free(notes);
 }
