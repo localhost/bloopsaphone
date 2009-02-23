@@ -36,7 +36,6 @@
 #define BLOOPS_FX_PHASE     17
 #define BLOOPS_FX_PSWEEP    18
 #define BLOOPS_FX_REPEAT    19
-#define BLOOPS_MAX_FX       19
 
 typedef struct {
   unsigned char type, pan;

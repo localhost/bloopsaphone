@@ -132,7 +132,8 @@
   down = "-" %{ len = 1; } len?;
   mod = [b#] %{ mod = p[-1]; };
   oct = [1-8] %Aoct;
-  note = len? [a-gA-G] %{ tone = p[-1]; } mod? oct? ("[" fxcmd (":"|space*) float "]" %Afx )* %Anote;
+  fx = ("[" fxcmd (":"|space*) float "]" %Afx );
+  note = len? [a-gA-G] %{ tone = p[-1]; } mod? oct? fx* %Anote;
 
   main := |*
     len => {
