@@ -58,9 +58,16 @@ typedef struct {
 #define BLOOPS_HI_OCTAVE 8
 
 typedef struct {
+  unsigned char cmd;
+  unsigned char inc;
+  unsigned char dec;
+  float val;
+  struct bloopsafx *next;
+} bloopsafx;
+
+typedef struct {
   char tone, octave, duration;
-  char fxcmd[BLOOPS_MAX_FX];
-  float fxval[BLOOPS_MAX_FX];
+  struct bloopsafx *FX;
 } bloopsanote;
 
 typedef struct {
