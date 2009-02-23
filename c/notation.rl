@@ -34,8 +34,6 @@
   mod = 0; \
   tone = 0; \
   len = 4; \
-  fxcmd = 0; \
-  fxval = 0; \
   S->nlen++
 
 %%{
@@ -90,9 +88,12 @@
   }
 
   action Afx {
-    NOTE.fxcmd[fxcmd] = 1;
-    NOTE.fxval[fxcmd] = fxval;
-    // printf("\nfxcmd: %u, fxval: %0.3f | ", fxcmd, NOTE.fxval[fxcmd]);
+    bloopsafx *fx = (bloopsafx *)malloc(sizeof(bloopsafx));
+    fx->next = (struct bloopsafx *)NOTE.FX;
+    fx->cmd = fxcmd;
+    fx->val = fxval;
+    NOTE.FX = (struct bloopsafx *)fx;
+    //printf("\nfxcmd: %u, fxval: %0.3f | ", fx->cmd, fx->val);
   }
 
   action fxval1 {
@@ -215,11 +216,11 @@ bloops_track_str(bloopsatrack *track)
 
       adv = sprintf(ptr, "%d", (int)track->notes[i].octave);
       ptr += adv;
-      for (j = 0; j <= BLOOPS_MAX_FX; j++) {
-        if (track->notes[i].fxcmd[j] == 1) {
-          adv = sprintf(ptr, "[%s %0.3f]", bloops_fxcmd_name(j), track->notes[i].fxval[j]);
-          ptr += adv;
-        }
+      bloopsafx *fx = (bloopsafx *)track->notes[i].FX;
+      while (fx) {
+        adv = sprintf(ptr, "[%s %0.3f]", bloops_fxcmd_name(j), fx->val);
+        ptr += adv;
+        fx = (bloopsafx *)fx->next;
       }
     }
   }

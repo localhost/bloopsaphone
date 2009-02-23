@@ -158,71 +158,74 @@ bloops_synth(bloops *B, int length, float* buffer)
               A->playing = BLOOPS_STOP;
             } else {
               bloopsanote *note = &A->notes[A->nextnote[1]];
-              for (i = 0; i <= BLOOPS_MAX_FX; i++)
-                if (note->fxcmd[i] == 1) {
-                  switch (i) {
-                    case BLOOPS_FX_VOLUME:
-                      A->P->volume = note->fxval[BLOOPS_FX_VOLUME];
-                    break;
-                    case BLOOPS_FX_PUNCH:
-                      A->P->punch = note->fxval[BLOOPS_FX_PUNCH];
-                    break;
-                    case BLOOPS_FX_ATTACK:
-                      A->P->attack = note->fxval[BLOOPS_FX_ATTACK];
-                    break;
-                    case BLOOPS_FX_SUSTAIN:
-                      A->P->sustain = note->fxval[BLOOPS_FX_SUSTAIN];
-                    break;
-                    case BLOOPS_FX_DECAY:
-                      A->P->decay = note->fxval[BLOOPS_FX_DECAY];
-                    break;
-                    case BLOOPS_FX_SQUARE:
-                      A->P->square = note->fxval[BLOOPS_FX_SQUARE];
-                    break;
-                    case BLOOPS_FX_SWEEP:
-                      A->P->sweep = note->fxval[BLOOPS_FX_SWEEP];
-                    break;
-                    case BLOOPS_FX_VIBE:
-                      A->P->vibe = note->fxval[BLOOPS_FX_VIBE];
-                    break;
-                    case BLOOPS_FX_VSPEED:
-                      A->P->vspeed = note->fxval[BLOOPS_FX_VSPEED];
-                    break;
-                    case BLOOPS_FX_VDELAY:
-                      A->P->vibe = note->fxval[BLOOPS_FX_VDELAY];
-                    break;
-                    case BLOOPS_FX_LPF:
-                      A->P->lpf = note->fxval[BLOOPS_FX_LPF];
-                    break;
-                    case BLOOPS_FX_LSWEEP:
-                      A->P->lsweep = note->fxval[BLOOPS_FX_LSWEEP];
-                    break;
-                    case BLOOPS_FX_RESONANCE:
-                      A->P->resonance = note->fxval[BLOOPS_FX_RESONANCE];
-                    break;
-                    case BLOOPS_FX_HPF:
-                      A->P->hpf = note->fxval[BLOOPS_FX_HPF];
-                    break;
-                    case BLOOPS_FX_HSWEEP:
-                      A->P->hsweep = note->fxval[BLOOPS_FX_HSWEEP];
-                    break;
-                    case BLOOPS_FX_ARP:
-                      A->P->arp = note->fxval[BLOOPS_FX_ARP];
-                    break;
-                    case BLOOPS_FX_ASPEED:
-                      A->P->aspeed = note->fxval[BLOOPS_FX_ASPEED];
-                    break;
-                    case BLOOPS_FX_PHASE:
-                      A->P->phase = note->fxval[BLOOPS_FX_PHASE];
-                    break;
-                    case BLOOPS_FX_PSWEEP:
-                      A->P->psweep = note->fxval[BLOOPS_FX_PSWEEP];
-                    break;
-                    case BLOOPS_FX_REPEAT:
-                      A->P->repeat = note->fxval[BLOOPS_FX_REPEAT];
-                    break;
-                  }
+              bloopsafx *fx = (bloopsafx *)note->FX;
+              while (fx) {
+                switch (fx->cmd) {
+                  case BLOOPS_FX_VOLUME:
+                    A->P->volume = fx->val;
+                  break;
+                  case BLOOPS_FX_PUNCH:
+                    A->P->punch = fx->val;
+                  break;
+                  case BLOOPS_FX_ATTACK:
+                    A->P->attack = fx->val;
+                  break;
+                  case BLOOPS_FX_SUSTAIN:
+                    A->P->sustain = fx->val;
+                  break;
+                  case BLOOPS_FX_DECAY:
+                    A->P->decay = fx->val;
+                  break;
+                  case BLOOPS_FX_SQUARE:
+                    A->P->square = fx->val;
+                  break;
+                  case BLOOPS_FX_SWEEP:
+                    A->P->sweep = fx->val;
+                  break;
+                  case BLOOPS_FX_VIBE:
+                    A->P->vibe = fx->val;
+                  break;
+                  case BLOOPS_FX_VSPEED:
+                    A->P->vspeed = fx->val;
+                  break;
+                  case BLOOPS_FX_VDELAY:
+                    A->P->vibe = fx->val;
+                  break;
+                  case BLOOPS_FX_LPF:
+                    A->P->lpf = fx->val;
+                  break;
+                  case BLOOPS_FX_LSWEEP:
+                    A->P->lsweep = fx->val;
+                  break;
+                  case BLOOPS_FX_RESONANCE:
+                    A->P->resonance = fx->val;
+                  break;
+                  case BLOOPS_FX_HPF:
+                    A->P->hpf = fx->val;
+                  break;
+                  case BLOOPS_FX_HSWEEP:
+                    A->P->hsweep = fx->val;
+                  break;
+                  case BLOOPS_FX_ARP:
+                    A->P->arp = fx->val;
+                  break;
+                  case BLOOPS_FX_ASPEED:
+                    A->P->aspeed = fx->val;
+                  break;
+                  case BLOOPS_FX_PHASE:
+                    A->P->phase = fx->val;
+                  break;
+                  case BLOOPS_FX_PSWEEP:
+                    A->P->psweep = fx->val;
+                  break;
+                  case BLOOPS_FX_REPEAT:
+                    A->P->repeat = fx->val;
+                  break;
                 }
+
+                fx = (bloopsafx *)fx->next;
+              }
+
               bloops_ready(B, A, 1);
               A->period = 100.0 / (freq * freq + 0.001);
             }
