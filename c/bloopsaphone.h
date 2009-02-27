@@ -16,6 +16,27 @@
 #define BLOOPS_SINE     2
 #define BLOOPS_NOISE    3
 
+#define BLOOPS_FX_VOLUME    0
+#define BLOOPS_FX_PUNCH     1
+#define BLOOPS_FX_ATTACK    2
+#define BLOOPS_FX_SUSTAIN   3
+#define BLOOPS_FX_DECAY     4
+#define BLOOPS_FX_SWEEP     5
+#define BLOOPS_FX_SQUARE    6
+#define BLOOPS_FX_VIBE      7
+#define BLOOPS_FX_VSPEED    8
+#define BLOOPS_FX_VDELAY    9
+#define BLOOPS_FX_LPF       10
+#define BLOOPS_FX_LSWEEP    11
+#define BLOOPS_FX_RESONANCE 12
+#define BLOOPS_FX_HPF       13
+#define BLOOPS_FX_HSWEEP    14
+#define BLOOPS_FX_ARP       15
+#define BLOOPS_FX_ASPEED    16
+#define BLOOPS_FX_PHASE     17
+#define BLOOPS_FX_PSWEEP    18
+#define BLOOPS_FX_REPEAT    19
+
 typedef struct {
   unsigned char type, pan;
   float volume;
@@ -36,7 +57,15 @@ typedef struct {
 #define BLOOPS_HI_OCTAVE 8
 
 typedef struct {
+  unsigned char cmd;
+  float val;
+  char mod;
+  struct bloopsafx *next;
+} bloopsafx;
+
+typedef struct {
   char tone, octave, duration;
+  struct bloopsafx *FX;
 } bloopsanote;
 
 typedef struct {
@@ -82,11 +111,13 @@ void bloops_clear(bloops *);
 void bloops_tempo(bloops *, int tempo);
 void bloops_track_at(bloops *, bloopsatrack *, int);
 void bloops_track_destroy(bloopsatrack *);
+void bloops_notes_destroy(bloopsanote *, int);
 void bloops_play(bloops *);
 int bloops_is_done(bloops *);
 bloopsatrack *bloops_track(bloops *, bloopsaphone *, char *, int);
 bloopsatrack *bloops_track2(bloops *, bloopsaphone *, char *);
 char *bloops_track_str(bloopsatrack *);
+char *bloops_fxcmd_name(int);
 float bloops_note_freq(char, int);
 bloopsaphone *bloops_sound_file(bloops *, char *);
 char *bloops_sound_str(bloops *, bloopsaphone *);
