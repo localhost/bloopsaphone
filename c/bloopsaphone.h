@@ -59,6 +59,7 @@ typedef struct {
 typedef struct {
   unsigned char cmd;
   float val;
+  char mod;
   struct bloopsafx *next;
 } bloopsafx;
 

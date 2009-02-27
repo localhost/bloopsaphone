@@ -34,6 +34,8 @@
   mod = 0; \
   tone = 0; \
   len = 4; \
+  fxval = 0; \
+  fxmod = 0; \
   S->nlen++
 
 %%{
@@ -92,6 +94,8 @@
     fx->next = (struct bloopsafx *)NOTE.FX;
     fx->cmd = fxcmd;
     fx->val = fxval;
+    fx->mod = fxmod;
+    fxval = fxmod = 0;
     NOTE.FX = (struct bloopsafx *)fx;
   }
 
@@ -131,7 +135,8 @@
   down = "-" %{ len = 1; } len?;
   mod = [b#] %{ mod = p[-1]; };
   oct = [1-8] %Aoct;
-  fx = ("[" fxcmd (":"|space*) float "]" %Afx );
+  fxmod = ( ("+"|"-") %{ fxmod = p[-1]; } (":"|space*) )?;
+  fx = ("[" fxcmd (":"|space*) fxmod float "]" %Afx );
   note = len? [a-gA-G] %{ tone = p[-1]; } mod? oct? fx* %Anote;
 
   main := |*
@@ -153,7 +158,7 @@ bloops_track(bloops *B, bloopsaphone *P, char *track, int tracklen)
 {
   int cs, act, oct = 4, len = 4;
   bloopsatrack *S = (bloopsatrack *)malloc(sizeof(bloopsatrack));
-  char tone, mod, *p, *pe, *pf, *ts, *te, *eof = 0;
+  char tone, mod, fxmod, *p, *pe, *pf, *ts, *te, *eof = 0;
   int fxcmd = 0;
   float fxval = 0;
 
@@ -182,7 +187,7 @@ bloops_track_str(bloopsatrack *track)
 {
   int bufsize = sizeof(char) * (track->nlen * 6 + 1024);
   char *str = (char *)malloc(bufsize), *ptr = str;
-  int i, j, adv = 0;
+  int i, adv = 0;
 
   for (i = 0; i < track->nlen; i++)
   {
@@ -218,7 +223,10 @@ bloops_track_str(bloopsatrack *track)
       ptr += adv;
       bloopsafx *fx = (bloopsafx *)track->notes[i].FX;
       while (fx) {
-        adv = sprintf(ptr, "[%s %0.3f]", bloops_fxcmd_name(j), fx->val);
+        if (fx->mod == 0)
+          adv = sprintf(ptr, "[%s %0.3f]", bloops_fxcmd_name(fx->cmd), fx->val);
+        else
+          adv = sprintf(ptr, "[%s %c %0.3f]", bloops_fxcmd_name(fx->cmd), fx->mod, fx->val);
         ptr += adv;
         fx = (bloopsafx *)fx->next;
       }
