@@ -93,7 +93,6 @@
     fx->cmd = fxcmd;
     fx->val = fxval;
     NOTE.FX = (struct bloopsafx *)fx;
-    //printf("\nfxcmd: %u, fxval: %0.3f | ", fx->cmd, fx->val);
   }
 
   action fxval1 {
