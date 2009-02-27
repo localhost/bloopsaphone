@@ -135,7 +135,7 @@
   down = "-" %{ len = 1; } len?;
   mod = [b#] %{ mod = p[-1]; };
   oct = [1-8] %Aoct;
-  fxmod = ( ("+"|"-") %{ fxmod = p[-1]; } (":"|space*) )?;
+  fxmod = ( ("+"|"-") %{ fxmod = p[-1]; } (":"|space+) )?;
   fx = ("[" fxcmd (":"|space*) fxmod float "]" %Afx );
   note = len? [a-gA-G] %{ tone = p[-1]; } mod? oct? fx* %Anote;
 

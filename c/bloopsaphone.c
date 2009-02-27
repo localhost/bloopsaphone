@@ -26,8 +26,8 @@
   else                    V  = F->val; \
   if (V > 1.0f) \
     V = 1.0f; \
-  else if (V < -1.0f) \
-    V = -1.0f; \
+  else if (V < 0.0f) \
+    V = 0.0f; \
 })
 
 float
