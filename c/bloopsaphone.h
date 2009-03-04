@@ -91,14 +91,19 @@ typedef struct {
 } bloopsatrack;
 
 #define BLOOPS_MAX_TRACKS 64
+#define BLOOPS_MAX_CHANNELS 64
 
 typedef struct {
-  void *stream;
   int tempo;
   float volume;
   bloopsatrack *tracks[BLOOPS_MAX_TRACKS];
   unsigned char play;
 } bloops;
+
+typedef struct {
+  bloops *B[BLOOPS_MAX_CHANNELS];
+  void *stream;
+} bloopsmix;
 
 //
 // the api
