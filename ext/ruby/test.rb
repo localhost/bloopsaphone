@@ -6,6 +6,7 @@ b.tempo = 320
 
 # an instrument
 saw = b.sound Bloops::SAWTOOTH
+saw.test
 
 # assign a track to the song
 b.tune saw, "c5 c6 b4 b5 d5 d6 e5 e6"
@@ -35,6 +36,7 @@ b.tune beat3, "4 4 4 4 4 c2 c5 4"
 # make it go
 loop do
   b.play
+  saw.test
   [saw, beat, beat2, beat3].each do |s|
     s.repeat += (rand - 0.5) * 0.2
     s.decay += (rand - 0.5) * 0.2
