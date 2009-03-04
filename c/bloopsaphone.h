@@ -83,6 +83,7 @@ void bloops_tempo(bloops *, int tempo);
 void bloops_track_at(bloops *, bloopsatrack *, int);
 void bloops_track_destroy(bloopsatrack *);
 void bloops_play(bloops *);
+void bloops_stop(bloops *);
 int bloops_is_done(bloops *);
 bloopsatrack *bloops_track(bloops *, bloopsaphone *, char *, int);
 bloopsatrack *bloops_track2(bloops *, bloopsaphone *, char *);
