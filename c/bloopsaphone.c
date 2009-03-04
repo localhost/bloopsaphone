@@ -118,20 +118,6 @@ bloops_track_at(bloops *B, bloopsatrack *track, int num)
   B->tracks[num] = track;
 }
 
-void
-bloops_play(bloops *B)
-{
-  int i;
-  for (i = 0; i < BLOOPS_MAX_TRACKS; i++)
-    if (B->tracks[i] != NULL) {
-      bloops_ready(B, B->tracks[i], 1);
-      B->tracks[i]->frames = 0;
-      B->tracks[i]->nextnote[0] = 0;
-      B->tracks[i]->nextnote[1] = 0;
-    }
-  B->play = BLOOPS_PLAY;
-}
-
 int
 bloops_is_done(bloops *B)
 {
@@ -162,7 +148,9 @@ bloops_synth(bloops *B, int length, float* buffer)
           if (A->nextnote[1] < A->nlen)
           {
             bloopsanote *note = &A->notes[A->nextnote[1]];
-            float freq = bloops_note_freq(note->tone, (int)note->octave);
+            float freq = A->P->freq;
+            if (note->tone != 'n')
+              freq = bloops_note_freq(note->tone, (int)note->octave);
             if (freq == 0.0f) {
               A->period = 0.0f;
               A->playing = BLOOPS_STOP;
@@ -373,7 +361,37 @@ static int bloops_port_callback(const void *inputBuffer, void *outputBuffer,
     for(i = 0; i < framesPerBuffer; i++)
       *out++ = 0.0f;
   
-  return 0;
+  return paContinue;
+}
+
+void
+bloops_play(bloops *B)
+{
+  int i;
+
+  for (i = 0; i < BLOOPS_MAX_TRACKS; i++)
+    if (B->tracks[i] != NULL) {
+      bloops_ready(B, B->tracks[i], 1);
+      B->tracks[i]->frames = 0;
+      B->tracks[i]->nextnote[0] = 0;
+      B->tracks[i]->nextnote[1] = 0;
+    }
+  B->play = BLOOPS_PLAY;
+
+  if (B->stream == NULL) {
+    Pa_OpenDefaultStream(&B->stream, 0, 1, paFloat32,
+      SAMPLE_RATE, 512, bloops_port_callback, B);
+    Pa_StartStream(B->stream);
+  }
+}
+
+void
+bloops_stop(bloops *B)
+{
+  Pa_StopStream(B->stream);
+  Pa_CloseStream(B->stream);
+  B->play = BLOOPS_STOP;
+  B->stream = NULL;
 }
 
 bloopsaphone *
@@ -448,6 +466,7 @@ bloops_new()
   B->volume = 0.10f;
   B->tempo = 120;
   B->play = BLOOPS_STOP;
+  B->stream = NULL;
   bloops_clear(B);
 
   if (!bloops_open++)
@@ -456,17 +475,12 @@ bloops_new()
     Pa_Initialize();
   }
 
-  Pa_OpenDefaultStream(&B->stream, 0, 1, paFloat32,
-    SAMPLE_RATE, 512, bloops_port_callback, B);
-  Pa_StartStream(B->stream);
   return B;
 }
 
 void
 bloops_destroy(bloops *B)
 {
-  Pa_StopStream(B->stream);
-  Pa_CloseStream(B->stream);
   free((void *)B);
 
   if (!--bloops_open)
