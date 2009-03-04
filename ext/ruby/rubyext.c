@@ -107,6 +107,14 @@ rb_bloops_sound(VALUE self, VALUE type)
 }
 
 VALUE
+rb_bloops_sound_str(VALUE self)
+{
+  bloopsaphone *P;
+  Data_Get_Struct(self, bloopsaphone, P);
+  return rb_str_new2(bloops_sound_str(P));
+}
+
+VALUE
 rb_bloops_reset(VALUE self)
 {
   bloopsaphone *P;
@@ -256,6 +264,7 @@ Init_bloops()
   rb_const_set(cBloops, rb_intern("NOISE"), INT2NUM(BLOOPS_NOISE));
 
   cSound = rb_define_class_under(cBloops, "Sound", rb_cObject);
+  rb_define_method(cSound, "to_s", rb_bloops_sound_str, 0);
   rb_define_method(cSound, "reset", rb_bloops_reset, 0);
   rb_define_method(cSound, "test", rb_bloops_test, 0);
   rb_define_method(cSound, "arp", rb_bloops_get_arp, 0);

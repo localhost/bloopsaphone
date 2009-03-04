@@ -95,6 +95,6 @@ bloopsatrack *bloops_track2(bloops *, bloopsaphone *, char *);
 char *bloops_track_str(bloopsatrack *);
 float bloops_note_freq(char, int);
 bloopsaphone *bloops_sound_file(bloops *, char *);
-char *bloops_sound_str(bloops *, bloopsaphone *);
+char *bloops_sound_str(bloopsaphone *);
  
 #endif

@@ -1142,7 +1142,7 @@ done:
 }
 
 char *
-bloops_sound_str(bloops *B, bloopsaphone *P)
+bloops_sound_str(bloopsaphone *P)
 {
   char *lines = (char *)malloc(4096), *str = lines;
   bloopsaphone *sq = bloops_square();
