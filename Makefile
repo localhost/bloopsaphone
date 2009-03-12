@@ -27,7 +27,7 @@ bloopsawhat: ${OBJ} c/bloopsawhat.o
 
 bloopsalib: ${OBJ} 
 	@${ECHO} LINK bloopsalib
-	@${AR} ${ARFLAGS} bloopsaphone.a ${OBJ}
+	@${AR} ${ARFLAGS} libbloopsaphone.a ${OBJ}
 
 c/notation.c: c/notation.rl
 	@if [ "${RAGELV}" != "6.3" ]; then \
@@ -46,7 +46,7 @@ clean:
 	@${ECHO} cleaning
 	@rm -f ${OBJ}
 	@rm -f c/notation.c c/*.o
-	@rm -f bloopsawhat bloopsaphone.a bloopsaphone.so
+	@rm -f bloopsawhat libbloopsaphone.a bloopsaphone.so
 
 ruby: c/notation.c c/bloopsaphone.c
 	@${ECHO} RUBY extconf.rb
