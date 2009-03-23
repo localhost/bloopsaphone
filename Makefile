@@ -50,7 +50,7 @@ clean:
 
 ruby: c/notation.c c/bloopsaphone.c
 	@${ECHO} RUBY extconf.rb
-	@cd ext/ruby && ruby extconf.rb && make
+	@cd ext/ruby && CFLAGS="${CFLAGS}" LDFLAGS="${LDFLAGS}" ruby extconf.rb && make
 	@${ECHO} ""
 	@${ECHO} "To test: cd ext/ruby"
 	@${ECHO} "Then:    ruby test.rb"
