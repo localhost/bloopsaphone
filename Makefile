@@ -3,6 +3,8 @@ OBJ = ${SRC:.c=.o}
 
 PREFIX = /usr/local
 CC = gcc
+AR = ar
+ARFLAGS = cr
 CFLAGS ?= -Wall
 DEBUG ?= 0
 ECHO = /bin/echo
@@ -17,11 +19,15 @@ all: bloopsaphone
 
 rebuild: clean bloopsaphone
 
-bloopsaphone: bloopsawhat
+bloopsaphone: bloopsawhat bloopsalib
 
 bloopsawhat: ${OBJ} c/bloopsawhat.o
 	@${ECHO} LINK bloopsawhat
 	@${CC} ${CFLAGS} ${OBJ} c/bloopsawhat.o ${LDFLAGS} ${LIBS} -o bloopsawhat
+
+bloopsalib: ${OBJ} 
+	@${ECHO} LINK bloopsalib
+	@${AR} ${ARFLAGS} libbloopsaphone.a ${OBJ}
 
 c/notation.c: c/notation.rl
 	@if [ "${RAGELV}" != "6.3" ]; then \
@@ -40,7 +46,7 @@ clean:
 	@${ECHO} cleaning
 	@rm -f ${OBJ}
 	@rm -f c/notation.c c/*.o
-	@rm -f bloopsawhat bloopsaphone.a bloopsaphone.so
+	@rm -f bloopsawhat libbloopsaphone.a bloopsaphone.so
 
 ruby: c/notation.c c/bloopsaphone.c
 	@${ECHO} RUBY extconf.rb
