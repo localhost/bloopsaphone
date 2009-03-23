@@ -20,6 +20,16 @@
 #define tempo2frames(tempo) ((float)SAMPLE_RATE / (tempo / 60.0f))
 #define PI 3.14159265f
 
+#define FX(F, V) ({ \
+  if (F->mod == '+')      V += F->val; \
+  else if (F->mod == '-') V -= F->val; \
+  else                    V  = F->val; \
+  if (V > 1.0f) \
+    V = 1.0f; \
+  else if (V < 0.0f) \
+    V = 0.0f; \
+})
+
 static bloopsmix *MIXER = NULL;
 
 float
@@ -162,6 +172,34 @@ bloops_synth(int length, float* buffer)
                 A->period = 0.0f;
                 A->playing = BLOOPS_STOP;
               } else {
+                bloopsanote *note = &A->notes[A->nextnote[1]];
+                bloopsafx *fx = (bloopsafx *)note->FX;
+                while (fx) {
+                  switch (fx->cmd) {
+                    case BLOOPS_FX_VOLUME:    FX(fx, A->P->volume);     break;
+                    case BLOOPS_FX_PUNCH:     FX(fx, A->P->punch);      break;
+                    case BLOOPS_FX_ATTACK:    FX(fx, A->P->attack);     break;
+                    case BLOOPS_FX_SUSTAIN:   FX(fx, A->P->sustain);    break;
+                    case BLOOPS_FX_DECAY:     FX(fx, A->P->decay);      break;
+                    case BLOOPS_FX_SQUARE:    FX(fx, A->P->square);     break;
+                    case BLOOPS_FX_SWEEP:     FX(fx, A->P->sweep);      break;
+                    case BLOOPS_FX_VIBE:      FX(fx, A->P->vibe);       break;
+                    case BLOOPS_FX_VSPEED:    FX(fx, A->P->vspeed);     break;
+                    case BLOOPS_FX_VDELAY:    FX(fx, A->P->vdelay);     break;
+                    case BLOOPS_FX_LPF:       FX(fx, A->P->lpf);        break;
+                    case BLOOPS_FX_LSWEEP:    FX(fx, A->P->lsweep);     break;
+                    case BLOOPS_FX_RESONANCE: FX(fx, A->P->resonance);  break;
+                    case BLOOPS_FX_HPF:       FX(fx, A->P->hpf);        break;
+                    case BLOOPS_FX_HSWEEP:    FX(fx, A->P->hsweep);     break;
+                    case BLOOPS_FX_ARP:       FX(fx, A->P->arp);        break;
+                    case BLOOPS_FX_ASPEED:    FX(fx, A->P->aspeed);     break;
+                    case BLOOPS_FX_PHASE:     FX(fx, A->P->phase);      break;
+                    case BLOOPS_FX_PSWEEP:    FX(fx, A->P->psweep);     break;
+                    case BLOOPS_FX_REPEAT:    FX(fx, A->P->repeat);     break;
+                  }
+                  fx = (bloopsafx *)fx->next;
+                }
+
                 bloops_ready(B, A, 1);
                 A->period = 100.0 / (freq * freq + 0.001);
               }
@@ -331,9 +369,9 @@ static int bloops_port_callback(const void *inputBuffer, void *outputBuffer,
   unsigned long framesPerBuffer, const PaStreamCallbackTimeInfo* timeInfo,
   PaStreamCallbackFlags statusFlags, void *data)
 {
-  int i;
+  // int i;
   float *out = (float*)outputBuffer;
-  bloops *B = (bloops *)data;
+  // bloops *B = (bloops *)data;
 
   bloops_synth(framesPerBuffer, out);
   // if (B->play == BLOOPS_PLAY)
@@ -494,6 +532,22 @@ void
 bloops_track_destroy(bloopsatrack *track)
 {
   if (track->notes != NULL)
-    free(track->notes);
+    bloops_notes_destroy(track->notes, track->nlen);
   free(track);
+}
+
+void bloops_notes_destroy(bloopsanote *notes, int nlen)
+{
+  bloopsafx *fx, *n;
+  int i;
+
+  for (i = 0; i < nlen; i++) {
+    n = fx = (bloopsafx *)notes[i].FX;
+    while ((fx = n)) {
+      n = (bloopsafx *)fx->next;
+      free(fx);
+    }
+  }
+
+  free(notes);
 }
