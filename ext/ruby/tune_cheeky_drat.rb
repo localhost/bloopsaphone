@@ -30,7 +30,7 @@ base.slide = -0.4
 
 snare = b.sound Bloops::NOISE
 snare.attack = 0.075
-snare.sustain = 0
+snare.sustain = 0.01
 snare.decay = 0.33
 snare.hpf = 0.55
 snare.resonance = 0.44
