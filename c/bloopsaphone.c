@@ -271,7 +271,7 @@ bloops_synth(int length, float* buffer)
         if(A->square > 0.5f) A->square = 0.5f;    
 
         A->time++;
-        if (A->time > A->length[A->stage])
+        while (A->time >= A->length[A->stage])
         {
           A->time = 0;
           A->stage++;
@@ -284,7 +284,7 @@ bloops_synth(int length, float* buffer)
             A->volume = (float)A->time / A->length[0];
           break;
           case 1:
-            A->volume = 1.0f + pow(1.0f - (float)A->time / A->length[1], 1.0f) * 2.0f * A->P->punch;
+            A->volume = 1.0f + (1.0f - (float)A->time / A->length[1]) * 2.0f * A->P->punch;
           break;
           case 2:
             A->volume = 1.0f - (float)A->time / A->length[2];
