@@ -192,8 +192,13 @@ bloops_track_str(bloopsatrack *track)
   for (i = 0; i < track->nlen; i++)
   {
     if (ptr - str + adv + sizeof(char) * 256 > bufsize) {
+      char *new_str;
       bufsize += sizeof(char) * 1024;
-      realloc(str, bufsize);
+      new_str = realloc(str, bufsize);
+      if (new_str == NULL) {
+        free(str);
+        return NULL;
+      }
     }
 
     if (ptr > str)
