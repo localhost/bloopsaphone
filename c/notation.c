@@ -395,7 +395,7 @@ bloops_track(bloops *B, bloopsaphone *P, char *track, int tracklen)
   int cs, act, oct = 4, len = 4;
   bloopsatrack *S = (bloopsatrack *)malloc(sizeof(bloopsatrack));
   char tone, mod, fxmod, *p, *pe, *pf, *ts, *te, *eof = 0;
-  int fxcmd = 0;
+  bloopsafxcmd fxcmd = (bloopsafxcmd)0;
   float fxval = 0;
 
   S->P = P;
@@ -560,12 +560,12 @@ _eof_trans:
 #line 92 "c/notation.rl"
 	{
     bloopsafx *fx = (bloopsafx *)malloc(sizeof(bloopsafx));
-    fx->next = (struct bloopsafx *)NOTE.FX;
+    fx->next = NOTE.FX;
     fx->cmd = fxcmd;
     fx->val = fxval;
     fx->mod = fxmod;
     fxval = fxmod = 0;
-    NOTE.FX = (struct bloopsafx *)fx;
+    NOTE.FX = fx;
   }
 	break;
 	case 4:
@@ -822,7 +822,7 @@ bloops_track_str(bloopsatrack *track)
 }
 
 char *
-bloops_fxcmd_name(int fxcmd) {
+bloops_fxcmd_name(bloopsafxcmd fxcmd) {
   char *fxname = "\0";
   switch (fxcmd) {
     case BLOOPS_FX_VOLUME:    fxname = "volume"; break;

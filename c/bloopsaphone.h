@@ -16,26 +16,28 @@
 #define BLOOPS_SINE     2
 #define BLOOPS_NOISE    3
 
-#define BLOOPS_FX_VOLUME    0
-#define BLOOPS_FX_PUNCH     1
-#define BLOOPS_FX_ATTACK    2
-#define BLOOPS_FX_SUSTAIN   3
-#define BLOOPS_FX_DECAY     4
-#define BLOOPS_FX_SWEEP     5
-#define BLOOPS_FX_SQUARE    6
-#define BLOOPS_FX_VIBE      7
-#define BLOOPS_FX_VSPEED    8
-#define BLOOPS_FX_VDELAY    9
-#define BLOOPS_FX_LPF       10
-#define BLOOPS_FX_LSWEEP    11
-#define BLOOPS_FX_RESONANCE 12
-#define BLOOPS_FX_HPF       13
-#define BLOOPS_FX_HSWEEP    14
-#define BLOOPS_FX_ARP       15
-#define BLOOPS_FX_ASPEED    16
-#define BLOOPS_FX_PHASE     17
-#define BLOOPS_FX_PSWEEP    18
-#define BLOOPS_FX_REPEAT    19
+typedef enum {
+  BLOOPS_FX_VOLUME = 0,
+  BLOOPS_FX_PUNCH = 1,
+  BLOOPS_FX_ATTACK = 2,
+  BLOOPS_FX_SUSTAIN = 3,
+  BLOOPS_FX_DECAY = 4,
+  BLOOPS_FX_SWEEP = 5,
+  BLOOPS_FX_SQUARE = 6,
+  BLOOPS_FX_VIBE = 7,
+  BLOOPS_FX_VSPEED = 8,
+  BLOOPS_FX_VDELAY = 9,
+  BLOOPS_FX_LPF = 10,
+  BLOOPS_FX_LSWEEP = 11,
+  BLOOPS_FX_RESONANCE = 12,
+  BLOOPS_FX_HPF = 13,
+  BLOOPS_FX_HSWEEP = 14,
+  BLOOPS_FX_ARP = 15,
+  BLOOPS_FX_ASPEED = 16,
+  BLOOPS_FX_PHASE = 17,
+  BLOOPS_FX_PSWEEP = 18,
+  BLOOPS_FX_REPEAT = 19
+} bloopsafxcmd;
 
 typedef struct {
   unsigned char type, pan;
@@ -57,7 +59,7 @@ typedef struct {
 #define BLOOPS_HI_OCTAVE 8
 
 typedef struct bloopsafx_tag {
-  unsigned char cmd;
+  bloopsafxcmd cmd;
   float val;
   char mod;
   struct bloopsafx_tag *next;
@@ -123,7 +125,7 @@ int bloops_is_done(bloops *);
 bloopsatrack *bloops_track(bloops *, bloopsaphone *, char *, int);
 bloopsatrack *bloops_track2(bloops *, bloopsaphone *, char *);
 char *bloops_track_str(bloopsatrack *);
-char *bloops_fxcmd_name(int);
+char *bloops_fxcmd_name(bloopsafxcmd fxcmd);
 float bloops_note_freq(char, int);
 bloopsaphone *bloops_sound_file(bloops *, char *);
 char *bloops_sound_str(bloopsaphone *);
