@@ -125,8 +125,9 @@ void
 bloops_clear(bloops *B)
 {
   int i;
-  for (i = 0; i < BLOOPS_MAX_TRACKS; i++)
-    B->tracks[i] = NULL;
+  for (i = 0; i < BLOOPS_MAX_TRACKS; i++) {
+    bloops_track_at(B, NULL, i);
+  }
 }
 
 void
@@ -138,7 +139,15 @@ bloops_tempo(bloops *B, int tempo)
 void
 bloops_track_at(bloops *B, bloopsatrack *track, int num)
 {
+  bloopsatrack *old_track;
+  old_track = B->tracks[num];
   B->tracks[num] = track;
+  if (track != NULL) {
+    bloops_track_ref(track);
+  }
+  if (old_track != NULL) {
+    bloops_track_destroy(old_track);
+  }
 }
 
 int
@@ -502,11 +511,15 @@ static int bloops_open = 0;
 bloops *
 bloops_new()
 {
+  int i;
   bloops *B = (bloops *)malloc(sizeof(bloops));
+  B->refcount = 1;
   B->volume = 0.10f;
   B->tempo = 120;
   B->play = BLOOPS_STOP;
-  bloops_clear(B);
+  for (i = 0; i < BLOOPS_MAX_TRACKS; i++) {
+    B->tracks[i] = NULL;
+  }
 
   if (MIXER == NULL)
     MIXER = (bloopsmix *)calloc(sizeof(bloopsmix), 1);
@@ -521,8 +534,18 @@ bloops_new()
 }
 
 void
+bloops_ref(bloops *B)
+{
+  B->refcount++;
+}
+
+void
 bloops_destroy(bloops *B)
 {
+  if (--B->refcount) {
+    return;
+  }
+
   bloops_remove(B);
   free((void *)B);
 
@@ -552,8 +575,17 @@ static void bloops_notes_destroy(bloopsanote *notes, int nlen)
 }
 
 void
+bloops_track_ref(bloopsatrack *track)
+{
+  track->refcount++;
+}
+
+void
 bloops_track_destroy(bloopsatrack *track)
 {
+  if (--track->refcount) {
+    return;
+  }
   if (track->notes != NULL)
     bloops_notes_destroy(track->notes, track->nlen);
   free(track);

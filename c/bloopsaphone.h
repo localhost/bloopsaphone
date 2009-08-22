@@ -71,6 +71,7 @@ typedef struct {
 } bloopsanote;
 
 typedef struct {
+  unsigned refcount;
   bloopsaphone *P;
   int nlen, capa;
   bloopsanote *notes;
@@ -96,6 +97,7 @@ typedef struct {
 #define BLOOPS_MAX_CHANNELS 64
 
 typedef struct {
+  unsigned refcount;
   int tempo;
   float volume;
   bloopsatrack *tracks[BLOOPS_MAX_TRACKS];
@@ -111,22 +113,29 @@ typedef struct {
 // the api
 //
 bloops *bloops_new();
+void bloops_ref(bloops *);
 void bloops_destroy(bloops *);
-bloopsaphone *bloops_square();
-bloopsaphone *bloops_load(char *);
+
 void bloops_clear(bloops *);
 void bloops_tempo(bloops *, int tempo);
-void bloops_track_at(bloops *, bloopsatrack *, int);
-void bloops_track_destroy(bloopsatrack *);
 void bloops_play(bloops *);
 void bloops_stop(bloops *);
 int bloops_is_done(bloops *);
+
+void bloops_track_at(bloops *, bloopsatrack *, int);
+
 bloopsatrack *bloops_track(bloops *, bloopsaphone *, char *, int);
 bloopsatrack *bloops_track2(bloops *, bloopsaphone *, char *);
+void bloops_track_ref(bloopsatrack *);
+void bloops_track_destroy(bloopsatrack *);
+
+bloopsaphone *bloops_square();
+bloopsaphone *bloops_load(char *);
+bloopsaphone *bloops_sound_file(bloops *, char *);
+
 char *bloops_track_str(bloopsatrack *);
 char *bloops_fxcmd_name(bloopsafxcmd fxcmd);
 float bloops_note_freq(char, int);
-bloopsaphone *bloops_sound_file(bloops *, char *);
 char *bloops_sound_str(bloopsaphone *);
  
 #endif

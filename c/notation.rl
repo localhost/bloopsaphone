@@ -162,6 +162,7 @@ bloops_track(bloops *B, bloopsaphone *P, char *track, int tracklen)
   bloopsafxcmd fxcmd = (bloopsafxcmd)0;
   float fxval = 0;
 
+  S->refcount = 1;
   S->P = P;
   S->nlen = 0;
   S->capa = 1024;

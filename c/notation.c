@@ -398,6 +398,7 @@ bloops_track(bloops *B, bloopsaphone *P, char *track, int tracklen)
   bloopsafxcmd fxcmd = (bloopsafxcmd)0;
   float fxval = 0;
 
+  S->refcount = 1;
   S->P = P;
   S->nlen = 0;
   S->capa = 1024;
@@ -407,16 +408,16 @@ bloops_track(bloops *B, bloopsaphone *P, char *track, int tracklen)
   pe = track + tracklen + 1;
 
   
-#line 411 "c/notation.c"
+#line 412 "c/notation.c"
 	{
 	cs = bloopnotes_start;
 	ts = 0;
 	te = 0;
 	act = 0;
 	}
-#line 174 "c/notation.rl"
+#line 175 "c/notation.rl"
   
-#line 420 "c/notation.c"
+#line 421 "c/notation.c"
 	{
 	int _klen;
 	unsigned int _trans;
@@ -437,7 +438,7 @@ _resume:
 #line 1 "c/notation.rl"
 	{ts = p;}
 	break;
-#line 441 "c/notation.c"
+#line 442 "c/notation.c"
 		}
 	}
 
@@ -719,7 +720,7 @@ _eof_trans:
 #line 147 "c/notation.rl"
 	{{p = ((te))-1;}{ NEXT(); }}
 	break;
-#line 723 "c/notation.c"
+#line 724 "c/notation.c"
 		}
 	}
 
@@ -732,7 +733,7 @@ _again:
 #line 1 "c/notation.rl"
 	{ts = 0;}
 	break;
-#line 736 "c/notation.c"
+#line 737 "c/notation.c"
 		}
 	}
 
@@ -751,7 +752,7 @@ _again:
 
 	_out: {}
 	}
-#line 175 "c/notation.rl"
+#line 176 "c/notation.rl"
 
   return S;
 }
@@ -965,7 +966,7 @@ bloops_note_freq(char note, int octave)
 #define KEY(name) key = (void *)&P->name
 
 
-#line 969 "c/notation.c"
+#line 970 "c/notation.c"
 static const char _bloopserial_actions[] = {
 	0, 1, 0, 1, 1, 1, 2, 1, 
 	5, 1, 6, 1, 7, 1, 8, 1, 
@@ -1272,7 +1273,7 @@ static const int bloopserial_error = 0;
 
 static const int bloopserial_en_main = 142;
 
-#line 440 "c/notation.rl"
+#line 441 "c/notation.rl"
 
 
 bloopsaphone *
@@ -1304,16 +1305,16 @@ bloops_sound_file(bloops *B, char *fname)
 
   P = bloops_square();
   
-#line 1308 "c/notation.c"
+#line 1309 "c/notation.c"
 	{
 	cs = bloopserial_start;
 	ts = 0;
 	te = 0;
 	act = 0;
 	}
-#line 471 "c/notation.rl"
+#line 472 "c/notation.rl"
   
-#line 1317 "c/notation.c"
+#line 1318 "c/notation.c"
 	{
 	int _klen;
 	unsigned int _trans;
@@ -1334,7 +1335,7 @@ _resume:
 #line 1 "c/notation.rl"
 	{ts = p;}
 	break;
-#line 1338 "c/notation.c"
+#line 1339 "c/notation.c"
 		}
 	}
 
@@ -1400,150 +1401,150 @@ _eof_trans:
 		switch ( *_acts++ )
 		{
 	case 0:
-#line 394 "c/notation.rl"
+#line 395 "c/notation.rl"
 	{
     fval = ATOI(ts, p - ts) * 1.0f;
   }
 	break;
 	case 1:
-#line 398 "c/notation.rl"
+#line 399 "c/notation.rl"
 	{
     fval = ATOI(pf, p - pf) * pow(0.1f, p - pf);
   }
 	break;
 	case 2:
-#line 402 "c/notation.rl"
+#line 403 "c/notation.rl"
 	{ pf = p; }
 	break;
 	case 3:
-#line 403 "c/notation.rl"
+#line 404 "c/notation.rl"
 	{ fval *= -1.0f; }
 	break;
 	case 4:
-#line 404 "c/notation.rl"
+#line 405 "c/notation.rl"
 	{ KEY(volume); }
 	break;
 	case 5:
-#line 405 "c/notation.rl"
+#line 406 "c/notation.rl"
 	{ KEY(arp); }
 	break;
 	case 6:
-#line 406 "c/notation.rl"
+#line 407 "c/notation.rl"
 	{ KEY(aspeed); }
 	break;
 	case 7:
-#line 407 "c/notation.rl"
+#line 408 "c/notation.rl"
 	{ KEY(attack); }
 	break;
 	case 8:
-#line 408 "c/notation.rl"
+#line 409 "c/notation.rl"
 	{ KEY(decay); }
 	break;
 	case 9:
-#line 409 "c/notation.rl"
+#line 410 "c/notation.rl"
 	{ KEY(dslide); }
 	break;
 	case 10:
-#line 410 "c/notation.rl"
+#line 411 "c/notation.rl"
 	{ KEY(freq); }
 	break;
 	case 11:
-#line 411 "c/notation.rl"
+#line 412 "c/notation.rl"
 	{ KEY(hpf); }
 	break;
 	case 12:
-#line 412 "c/notation.rl"
+#line 413 "c/notation.rl"
 	{ KEY(hsweep); }
 	break;
 	case 13:
-#line 413 "c/notation.rl"
+#line 414 "c/notation.rl"
 	{ KEY(limit); }
 	break;
 	case 14:
-#line 414 "c/notation.rl"
+#line 415 "c/notation.rl"
 	{ KEY(lpf); }
 	break;
 	case 15:
-#line 415 "c/notation.rl"
+#line 416 "c/notation.rl"
 	{ KEY(lsweep); }
 	break;
 	case 16:
-#line 416 "c/notation.rl"
+#line 417 "c/notation.rl"
 	{ KEY(phase); }
 	break;
 	case 17:
-#line 417 "c/notation.rl"
+#line 418 "c/notation.rl"
 	{ KEY(psweep); }
 	break;
 	case 18:
-#line 418 "c/notation.rl"
+#line 419 "c/notation.rl"
 	{ KEY(repeat); }
 	break;
 	case 19:
-#line 419 "c/notation.rl"
+#line 420 "c/notation.rl"
 	{ KEY(resonance); }
 	break;
 	case 20:
-#line 420 "c/notation.rl"
+#line 421 "c/notation.rl"
 	{ KEY(slide); }
 	break;
 	case 21:
-#line 421 "c/notation.rl"
+#line 422 "c/notation.rl"
 	{ KEY(square); }
 	break;
 	case 22:
-#line 422 "c/notation.rl"
+#line 423 "c/notation.rl"
 	{ KEY(sustain); }
 	break;
 	case 23:
-#line 423 "c/notation.rl"
+#line 424 "c/notation.rl"
 	{ KEY(sweep); }
 	break;
 	case 24:
-#line 424 "c/notation.rl"
+#line 425 "c/notation.rl"
 	{ KEY(punch); }
 	break;
 	case 25:
-#line 425 "c/notation.rl"
+#line 426 "c/notation.rl"
 	{ KEY(vibe); }
 	break;
 	case 26:
-#line 426 "c/notation.rl"
+#line 427 "c/notation.rl"
 	{ KEY(vspeed); }
 	break;
 	case 27:
-#line 427 "c/notation.rl"
+#line 428 "c/notation.rl"
 	{ KEY(vdelay); }
 	break;
 	case 28:
-#line 428 "c/notation.rl"
+#line 429 "c/notation.rl"
 	{ KEY(volume); }
 	break;
 	case 31:
-#line 432 "c/notation.rl"
+#line 433 "c/notation.rl"
 	{te = p+1;{ P->type = BLOOPS_SQUARE; }}
 	break;
 	case 32:
-#line 433 "c/notation.rl"
+#line 434 "c/notation.rl"
 	{te = p+1;{ P->type = BLOOPS_SAWTOOTH; }}
 	break;
 	case 33:
-#line 434 "c/notation.rl"
+#line 435 "c/notation.rl"
 	{te = p+1;{ P->type = BLOOPS_SINE; }}
 	break;
 	case 34:
-#line 435 "c/notation.rl"
+#line 436 "c/notation.rl"
 	{te = p+1;{ P->type = BLOOPS_NOISE; }}
 	break;
 	case 35:
-#line 431 "c/notation.rl"
+#line 432 "c/notation.rl"
 	{te = p;p--;{ *((float *)key) = fval; }}
 	break;
 	case 36:
-#line 436 "c/notation.rl"
+#line 437 "c/notation.rl"
 	{te = p;p--;}
 	break;
-#line 1547 "c/notation.c"
+#line 1548 "c/notation.c"
 		}
 	}
 
@@ -1556,7 +1557,7 @@ _again:
 #line 1 "c/notation.rl"
 	{ts = 0;}
 	break;
-#line 1560 "c/notation.c"
+#line 1561 "c/notation.c"
 		}
 	}
 
@@ -1575,7 +1576,7 @@ _again:
 
 	_out: {}
 	}
-#line 472 "c/notation.rl"
+#line 473 "c/notation.rl"
 
 done:
   fclose(fp);
