@@ -59,8 +59,8 @@ bloops_remove(bloops *B)
       MIXER->B[i] = NULL;
 }
 
-void
-bloops_ready(bloops *B, bloopsatrack *A, unsigned char init)
+static void
+bloops_reset_track(bloopsatrack *A)
 {
   A->period = 100.0 / (A->P->freq * A->P->freq + 0.001);
   A->maxperiod = 100.0 / (A->P->limit * A->P->limit + 0.001);
@@ -76,49 +76,49 @@ bloops_ready(bloops *B, bloopsatrack *A, unsigned char init)
   A->alimit = (int)(pow(1.0f - A->P->aspeed, 2.0f) * 20000 + 32);
   if (A->P->aspeed == 1.0f)
     A->alimit = 0;
+}
 
-  if (init)
-  {
-    int i = 0;
-    A->phase = 0;
-    A->filter[0] = 0.0f;
-    A->filter[1] = 0.0f;
-    A->filter[2] = pow(A->P->lpf, 3.0f) * 0.1f;
-    A->filter[3] = 1.0f + A->P->lsweep * 0.0001f;
-    A->filter[4] = 5.0f / (1.0f + pow(A->P->resonance, 2.0f) * 20.0f) * (0.01f + A->filter[2]);
-    if (A->filter[4] > 0.8f) A->filter[4] = 0.8f;
-    A->filter[5] = 0.0f;
-    A->filter[6] = pow(A->P->hpf, 2.0f) * 0.1f;
-    A->filter[7] = 1.0 + A->P->hsweep * 0.0003f;
+static void
+bloops_start_track(bloopsatrack *A) {
+  int i = 0;
+  A->phase = 0;
+  A->filter[0] = 0.0f;
+  A->filter[1] = 0.0f;
+  A->filter[2] = pow(A->P->lpf, 3.0f) * 0.1f;
+  A->filter[3] = 1.0f + A->P->lsweep * 0.0001f;
+  A->filter[4] = 5.0f / (1.0f + pow(A->P->resonance, 2.0f) * 20.0f) * (0.01f + A->filter[2]);
+  if (A->filter[4] > 0.8f) A->filter[4] = 0.8f;
+  A->filter[5] = 0.0f;
+  A->filter[6] = pow(A->P->hpf, 2.0f) * 0.1f;
+  A->filter[7] = 1.0 + A->P->hsweep * 0.0003f;
 
-    A->vibe = 0.0f;
-    A->vspeed = pow(A->P->vspeed, 2.0f) * 0.01f;
-    A->vdelay = A->P->vibe * 0.5f;
+  A->vibe = 0.0f;
+  A->vspeed = pow(A->P->vspeed, 2.0f) * 0.01f;
+  A->vdelay = A->P->vibe * 0.5f;
 
-    A->volume = 0.0f;
-    A->stage = 0;
-    A->time = 0;
-    A->length[0] = (int)(A->P->attack * A->P->attack * 100000.0f);
-    A->length[1] = (int)(A->P->sustain * A->P->sustain * 100000.0f);
-    A->length[2] = (int)(A->P->decay * A->P->decay * 100000.0f);
+  A->volume = 0.0f;
+  A->stage = 0;
+  A->time = 0;
+  A->length[0] = (int)(A->P->attack * A->P->attack * 100000.0f);
+  A->length[1] = (int)(A->P->sustain * A->P->sustain * 100000.0f);
+  A->length[2] = (int)(A->P->decay * A->P->decay * 100000.0f);
 
-    A->fphase = pow(A->P->phase, 2.0f) * 1020.0f;
-    if (A->P->phase < 0.0f) A->fphase = -A->fphase;
-    A->dphase = pow(A->P->psweep, 2.0f) * 1.0f;
-    if (A->P->psweep < 0.0f) A->dphase = -A->dphase;
-    A->iphase = abs((int)A->fphase);
-    A->phasex = 0;
+  A->fphase = pow(A->P->phase, 2.0f) * 1020.0f;
+  if (A->P->phase < 0.0f) A->fphase = -A->fphase;
+  A->dphase = pow(A->P->psweep, 2.0f) * 1.0f;
+  if (A->P->psweep < 0.0f) A->dphase = -A->dphase;
+  A->iphase = abs((int)A->fphase);
+  A->phasex = 0;
 
-    memset(A->phaser, 0, 1024 * sizeof(float));
-    for (i = 0; i < 32; i++)
-      A->noise[i] = frnd(2.0f) - 1.0f;
+  memset(A->phaser, 0, 1024 * sizeof(float));
+  for (i = 0; i < 32; i++)
+    A->noise[i] = frnd(2.0f) - 1.0f;
 
-    A->repeat = 0;
-    A->limit = (int)(pow(1.0f - A->P->repeat, 2.0f) * 20000 + 32);
-    if (A->P->repeat == 0.0f)
-      A->limit = 0;
-    A->playing = BLOOPS_PLAY;
-  }
+  A->repeat = 0;
+  A->limit = (int)(pow(1.0f - A->P->repeat, 2.0f) * 20000 + 32);
+  if (A->P->repeat == 0.0f)
+    A->limit = 0;
+  A->playing = BLOOPS_PLAY;
 }
 
 void
@@ -211,7 +211,8 @@ bloops_synth(int length, float* buffer)
                   fx = fx->next;
                 }
 
-                bloops_ready(B, A, 1);
+                bloops_reset_track(A);
+                bloops_start_track(A);
                 A->period = 100.0 / (freq * freq + 0.001);
               }
 
@@ -238,7 +239,7 @@ bloops_synth(int length, float* buffer)
         if (A->limit != 0 && A->repeat >= A->limit)
         {
           A->repeat = 0;
-          bloops_ready(B, A, 0);
+          bloops_reset_track(A);
         }
 
         A->atime++;
@@ -392,10 +393,13 @@ bloops_play(bloops *B)
 
   for (i = 0; i < BLOOPS_MAX_TRACKS; i++)
     if (B->tracks[i] != NULL) {
-      bloops_ready(B, B->tracks[i], 1);
-      B->tracks[i]->frames = 0;
-      B->tracks[i]->nextnote[0] = 0;
-      B->tracks[i]->nextnote[1] = 0;
+      bloopsatrack *A;
+      A = B->tracks[i];
+      bloops_reset_track(A);
+      bloops_start_track(A);
+      A->frames = 0;
+      A->nextnote[0] = 0;
+      A->nextnote[1] = 0;
     }
 
   bloops_remove(B);
