@@ -131,7 +131,6 @@ void bloops_track_ref(bloopsatrack *);
 void bloops_track_destroy(bloopsatrack *);
 
 bloopsaphone *bloops_square();
-bloopsaphone *bloops_load(char *);
 bloopsaphone *bloops_sound_file(bloops *, char *);
 void bloops_sound_ref(bloopsaphone *);
 void bloops_sound_destroy(bloopsaphone *);

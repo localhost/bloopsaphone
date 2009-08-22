@@ -457,57 +457,6 @@ bloops_square()
   return P;
 }
 
-bloopsaphone *
-bloops_load(char* filename)
-{
-  bloopsaphone *P = NULL;
-  FILE* file = fopen(filename, "rb");
-  if (!file) return NULL;
-
-  int version = 0;
-  fread(&version, 1, sizeof(int), file);
-  if (version != 102)
-    return NULL;
-
-  P = (bloopsaphone *)malloc(sizeof(bloopsaphone));
-  P->refcount = 1;
-  fread(&P->type,    1, sizeof(int), file);
-
-  P->volume = 0.5f;
-  fread(&P->volume,  1, sizeof(float), file);
-  fread(&P->freq,    1, sizeof(float), file);
-  fread(&P->limit,   1, sizeof(float), file);
-  fread(&P->slide,   1, sizeof(float), file);
-  fread(&P->dslide,  1, sizeof(float), file);
-  fread(&P->square,  1, sizeof(float), file);
-  fread(&P->sweep,   1, sizeof(float), file);
-
-  fread(&P->vibe,    1, sizeof(float), file);
-  fread(&P->vspeed,  1, sizeof(float), file);
-  fread(&P->vdelay,  1, sizeof(float), file);
-
-  fread(&P->attack,  1, sizeof(float), file);
-  fread(&P->sustain, 1, sizeof(float), file);
-  fread(&P->decay,   1, sizeof(float), file);
-  fread(&P->punch,   1, sizeof(float), file);
-
-  fread(&P->resonance, 1, sizeof(float), file);
-  fread(&P->lpf,     1, sizeof(float), file);
-  fread(&P->lsweep,  1, sizeof(float), file);
-  fread(&P->hpf,     1, sizeof(float), file);
-  fread(&P->hsweep,  1, sizeof(float), file);
-  
-  fread(&P->phase,   1, sizeof(float), file);
-  fread(&P->psweep,  1, sizeof(float), file);
-
-  fread(&P->repeat,  1, sizeof(float), file);
-  fread(&P->arp,     1, sizeof(float), file);
-  fread(&P->aspeed,  1, sizeof(float), file);
-
-  fclose(file);
-  return P;
-}
-
 static int bloops_open = 0;
 
 bloops *
