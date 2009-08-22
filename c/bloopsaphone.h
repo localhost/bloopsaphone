@@ -118,7 +118,6 @@ void bloops_clear(bloops *);
 void bloops_tempo(bloops *, int tempo);
 void bloops_track_at(bloops *, bloopsatrack *, int);
 void bloops_track_destroy(bloopsatrack *);
-void bloops_notes_destroy(bloopsanote *, int);
 void bloops_play(bloops *);
 void bloops_stop(bloops *);
 int bloops_is_done(bloops *);

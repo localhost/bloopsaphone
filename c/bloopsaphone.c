@@ -535,15 +535,7 @@ bloops_destroy(bloops *B)
   }
 }
 
-void
-bloops_track_destroy(bloopsatrack *track)
-{
-  if (track->notes != NULL)
-    bloops_notes_destroy(track->notes, track->nlen);
-  free(track);
-}
-
-void bloops_notes_destroy(bloopsanote *notes, int nlen)
+static void bloops_notes_destroy(bloopsanote *notes, int nlen)
 {
   bloopsafx *fx, *n;
   int i;
@@ -557,4 +549,12 @@ void bloops_notes_destroy(bloopsanote *notes, int nlen)
   }
 
   free(notes);
+}
+
+void
+bloops_track_destroy(bloopsatrack *track)
+{
+  if (track->notes != NULL)
+    bloops_notes_destroy(track->notes, track->nlen);
+  free(track);
 }
