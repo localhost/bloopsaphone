@@ -184,7 +184,7 @@ bloops_synth(int length, float* buffer)
                 A->playing = BLOOPS_STOP;
               } else {
                 bloopsanote *note = &A->notes[A->nextnote[1]];
-                bloopsafx *fx = (bloopsafx *)note->FX;
+                bloopsafx *fx = note->FX;
                 while (fx) {
                   switch (fx->cmd) {
                     case BLOOPS_FX_VOLUME:    FX(fx, A->P->volume);     break;
@@ -208,7 +208,7 @@ bloops_synth(int length, float* buffer)
                     case BLOOPS_FX_PSWEEP:    FX(fx, A->P->psweep);     break;
                     case BLOOPS_FX_REPEAT:    FX(fx, A->P->repeat);     break;
                   }
-                  fx = (bloopsafx *)fx->next;
+                  fx = fx->next;
                 }
 
                 bloops_ready(B, A, 1);
@@ -545,9 +545,9 @@ void bloops_notes_destroy(bloopsanote *notes, int nlen)
   int i;
 
   for (i = 0; i < nlen; i++) {
-    n = fx = (bloopsafx *)notes[i].FX;
+    n = fx = notes[i].FX;
     while ((fx = n)) {
-      n = (bloopsafx *)fx->next;
+      n = fx->next;
       free(fx);
     }
   }
