@@ -82,7 +82,7 @@ rb_bloops_set_tempo(VALUE self, VALUE tempo)
 static void
 rb_bloops_sound_free(bloopsaphone *sound)
 {
-  free(sound);
+  bloops_sound_destroy(sound);
 }
 
 VALUE

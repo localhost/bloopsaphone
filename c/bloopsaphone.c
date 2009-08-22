@@ -447,6 +447,7 @@ bloopsaphone *
 bloops_square()
 {
   bloopsaphone *P = (bloopsaphone *)calloc(sizeof(bloopsaphone), 1);
+  P->refcount = 1;
   P->type = BLOOPS_SQUARE;
   P->volume = 0.5f;
   P->sustain = 0.3f;
@@ -469,6 +470,7 @@ bloops_load(char* filename)
     return NULL;
 
   P = (bloopsaphone *)malloc(sizeof(bloopsaphone));
+  P->refcount = 1;
   fread(&P->type,    1, sizeof(int), file);
 
   P->volume = 0.5f;
@@ -586,7 +588,23 @@ bloops_track_destroy(bloopsatrack *track)
   if (--track->refcount) {
     return;
   }
-  if (track->notes != NULL)
+  if (track->P != NULL) {
+    bloops_sound_destroy(track->P);
+    track->P = NULL;
+  }
+  if (track->notes != NULL) {
     bloops_notes_destroy(track->notes, track->nlen);
+  }
   free(track);
+}
+
+void bloops_sound_ref(bloopsaphone *sound) {
+  sound->refcount++;
+}
+
+void bloops_sound_destroy(bloopsaphone *sound) {
+  if (--sound->refcount) {
+    return;
+  }
+  free(sound);
 }

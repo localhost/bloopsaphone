@@ -163,7 +163,6 @@ bloops_track(bloops *B, bloopsaphone *P, char *track, int tracklen)
   float fxval = 0;
 
   S->refcount = 1;
-  S->P = P;
   S->nlen = 0;
   S->capa = 1024;
   S->notes = (bloopsanote *)calloc(sizeof(bloopsanote), 1024);
@@ -173,6 +172,9 @@ bloops_track(bloops *B, bloopsaphone *P, char *track, int tracklen)
 
   %% write init;
   %% write exec;
+
+  S->P = P;
+  bloops_sound_ref(P);
 
   return S;
 }
