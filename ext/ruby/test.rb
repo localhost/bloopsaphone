@@ -37,15 +37,5 @@ b.tune beat3, "4 4 4 4 4 c2 c5 4"
 loop do
   b.play
   saw.test
-  [saw, beat, beat2, beat3].each do |s|
-    s.repeat += (rand - 0.5) * 0.2
-    s.decay += (rand - 0.5) * 0.2
-    s.sustain += (rand - 0.5) * 0.2
-    s.punch += (rand - 0.5) * 0.2
-    s.sweep += (rand - 0.5) * 0.2
-    s.lpf += (rand - 0.5) * 0.2
-    s.lsweep += (rand - 0.5) * 0.2
-    s.resonance += (rand - 0.5) * 0.2
-  end
   sleep 0.02 while !b.stopped?
 end
