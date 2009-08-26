@@ -11,10 +11,12 @@
 #define BLOOPS_PLAY 1
 #define BLOOPS_MUTE 2
 
-#define BLOOPS_SQUARE   0
-#define BLOOPS_SAWTOOTH 1
-#define BLOOPS_SINE     2
-#define BLOOPS_NOISE    3
+typedef enum {
+  BLOOPS_SQUARE = 0,
+  BLOOPS_SAWTOOTH = 1,
+  BLOOPS_SINE = 2,
+  BLOOPS_NOISE = 3
+} bloopswaveform;
 
 typedef enum {
   BLOOPS_FX_VOLUME = 0,
@@ -41,7 +43,8 @@ typedef enum {
 
 typedef struct {
   unsigned refcount;
-  unsigned char type, pan;
+  bloopswaveform type;
+  unsigned char pan;
   float volume;
   float punch;
   float attack;
