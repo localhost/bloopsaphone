@@ -547,6 +547,16 @@ bloops_track_destroy(bloopsatrack *track)
   free(track);
 }
 
+bloopsaphone *bloops_sound_dup(bloopsaphone *sound) {
+  bloopsaphone *P = (bloopsaphone *)malloc(sizeof(bloopsaphone));
+  if (P == NULL) {
+    return NULL;
+  }
+  memcpy(P, sound, sizeof(bloopsaphone));
+  P->refcount = 1;
+  return P;
+}
+
 void bloops_sound_ref(bloopsaphone *sound) {
   sound->refcount++;
 }
