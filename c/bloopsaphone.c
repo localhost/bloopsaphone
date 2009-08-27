@@ -54,9 +54,12 @@ bloops_remove(bloops *B)
 {
   int i;
   if (MIXER == NULL) return;
-  for (i = 0; i < BLOOPS_MAX_CHANNELS; i++)
-    if (MIXER->B[i] == B)
+  for (i = 0; i < BLOOPS_MAX_CHANNELS; i++) {
+    if (MIXER->B[i] == B) {
       MIXER->B[i] = NULL;
+      bloops_destroy(B);
+    }
+  }
 }
 
 static void
@@ -411,12 +414,18 @@ bloops_play(bloops *B)
       A->nextnote[1] = 0;
     }
 
-  bloops_remove(B);
-  for (i = 0; i < BLOOPS_MAX_CHANNELS; i++)
-    if (MIXER->B[i] == NULL || MIXER->B[i]->play == BLOOPS_STOP) {
+  for (i = 0; i < BLOOPS_MAX_CHANNELS; i++) {
+    if (MIXER->B[i] == B) {
+      break;
+    } else if (MIXER->B[i] == NULL || MIXER->B[i]->play == BLOOPS_STOP) {
+      bloops_ref(B);
+      if (MIXER->B[i] != NULL) {
+        bloops_destroy(MIXER->B[i]);
+      }
       MIXER->B[i] = B;
       break;
     }
+  }
 
   B->play = BLOOPS_PLAY;
   if (MIXER->stream == NULL) {
