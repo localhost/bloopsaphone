@@ -14,6 +14,7 @@
 #include <portaudio.h>
 #include <unistd.h>
 #include "bloopsaphone.h"
+#include "threads.h"
 
 #ifdef PaStream
 #error ** Looks like you're linking against PortAudio 1.8!
@@ -36,6 +37,7 @@
     V = 0.0f; \
 })
 
+static bloopsalock LOCK;
 static bloopsmix *MIXER = NULL;
 
 static void bloops_synth(int, float *);
@@ -486,6 +488,7 @@ bloops_new()
   if (!bloops_open++)
   {
     srand(time(NULL));
+    bloops_lock_init(&LOCK);
     Pa_Initialize();
   }
 
@@ -511,6 +514,7 @@ bloops_destroy(bloops *B)
   if (!--bloops_open)
   {
     Pa_Terminate();
+    bloops_lock_finalize(&LOCK);
     if (MIXER != NULL)
       free(MIXER);
     MIXER = NULL;
