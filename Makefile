@@ -47,6 +47,7 @@ clean:
 	@rm -f ${OBJ}
 	@rm -f c/notation.c c/*.o
 	@rm -f bloopsawhat libbloopsaphone.a bloopsaphone.so
+	@cd ext/ruby && make distclean || true
 
 ruby: c/notation.c c/bloopsaphone.c
 	@${ECHO} RUBY extconf.rb
