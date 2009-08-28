@@ -4,7 +4,8 @@ require 'fileutils'
 $CFLAGS << " -I../../c #{ENV['CFLAGS']}"
 $LIBS << " -lm -lportaudio #{ENV['LDFLAGS']}"
 
-%w[../../c/notation.c ../../c/bloopsaphone.c ../../c/bloopsaphone.h].each do |fn|
+%w[notation.c bloopsaphone.c bloopsaphone.h].each do |fn|
+  fn = "../../c/#{fn}"
   abort "!! ERROR !!\n** #{fn} not found; type 'make ruby' in the top directory\n\n" \
     unless File.exists? fn
   FileUtils.cp(fn, ".")
