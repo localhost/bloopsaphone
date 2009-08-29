@@ -175,11 +175,12 @@ bloops_track(bloops *B, bloopsaphone *P, char *track, int tracklen)
   %% write init;
   %% write exec;
 
-  S->P = bloops_sound_dup(P);
+  S->P = bloops_square();
   if (S->P == NULL) {
     free(S);
     S = NULL;
   }
+  bloops_sound_copy(S->P, P);
 
   _bloops_track_add(B, S);
 

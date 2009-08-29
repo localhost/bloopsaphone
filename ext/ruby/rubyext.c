@@ -117,7 +117,7 @@ rb_bloops_reset(VALUE self)
 {
   bloopsaphone *P;
   Data_Get_Struct(self, bloopsaphone, P);
-  MEMCPY(P, Pplain, bloopsaphone, 1);
+  bloops_sound_copy(P, Pplain);
   return self;
 }
 
