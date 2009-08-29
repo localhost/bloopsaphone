@@ -153,6 +153,8 @@
   write data nofinal;
 }%%
 
+extern void _bloops_track_add(bloops *B, bloopsatrack *track);
+
 bloopsatrack *
 bloops_track(bloops *B, bloopsaphone *P, char *track, int tracklen)
 {
@@ -178,6 +180,8 @@ bloops_track(bloops *B, bloopsaphone *P, char *track, int tracklen)
     free(S);
     S = NULL;
   }
+
+  _bloops_track_add(B, S);
 
   return S;
 }

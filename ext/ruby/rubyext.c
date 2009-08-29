@@ -8,9 +8,7 @@
 #include "bloopsaphone.h"
 
 static VALUE cBloops, cSound, cTrack;
-static bloops *Btest;
 static bloopsaphone *Pplain;
-static bloopsatrack *Ttest;
 
 #ifndef RSTRING_LEN
 #define RSTRING_LEN(str) RSTRING(str)->len
@@ -126,10 +124,21 @@ rb_bloops_reset(VALUE self)
 VALUE
 rb_bloops_test(VALUE self)
 {
+  bloops *B;
+  bloopsatrack *T;
   bloopsaphone *P;
+
   Data_Get_Struct(self, bloopsaphone, P);
-  Ttest->P = P;
-  bloops_play(Btest);
+
+  B = bloops_new();
+  bloops_tempo(B, 120);
+  T = bloops_track2(B, P, "C");
+  T->notes[0].tone = 'n';
+  T->P = P;
+  bloops_play(B);
+  bloops_track_destroy(T);
+  bloops_destroy(B);
+
   return self;
 }
 
@@ -200,7 +209,6 @@ rb_bloops_track_free(bloopsatrack *track)
 VALUE
 rb_bloops_tune(VALUE self, VALUE sound, VALUE notes)
 {
-  int i;
   bloops *B;
   bloopsaphone *phone;
   bloopsatrack *track;
@@ -209,12 +217,6 @@ rb_bloops_tune(VALUE self, VALUE sound, VALUE notes)
 
   StringValue(notes);
   track = bloops_track(B, phone, RSTRING_PTR(notes), RSTRING_LEN(notes));
-
-  for (i = 0; i < BLOOPS_MAX_TRACKS; i++)
-    if (B->tracks[i] == NULL) {
-      bloops_track_at(B, track, i);
-      break;
-    }
   return Data_Wrap_Struct(cTrack, NULL, rb_bloops_track_free, track);
 }
 
@@ -239,12 +241,7 @@ rb_bloops_track_str(VALUE self)
 void
 Init_bloops()
 {
-  Btest = bloops_new();
-  bloops_tempo(Btest, 120);
   Pplain = bloops_square();
-  Ttest = bloops_track2(Btest, Pplain, "C");
-  Ttest->notes[0].tone = 'n';
-  bloops_track_at(Btest, Ttest, 0);
 
   cBloops = rb_define_class("Bloops", rb_cObject);
   rb_define_alloc_func(cBloops, rb_bloops_alloc);

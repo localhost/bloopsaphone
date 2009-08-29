@@ -44,6 +44,7 @@ static void bloops_synth(int, float *);
 static int bloops_port_callback(const void *, void *,
   unsigned long, const PaStreamCallbackTimeInfo *,
   PaStreamCallbackFlags, void *);
+static void bloops_set_track_at(bloops *B, bloopsatrack *track, int num);
 
 float
 frnd(float range)
@@ -131,7 +132,7 @@ bloops_clear(bloops *B)
 {
   int i;
   for (i = 0; i < BLOOPS_MAX_TRACKS; i++) {
-    bloops_track_at(B, NULL, i);
+    bloops_set_track_at(B, NULL, i);
   }
 }
 
@@ -142,7 +143,7 @@ bloops_tempo(bloops *B, int tempo)
 }
 
 void
-bloops_track_at(bloops *B, bloopsatrack *track, int num)
+bloops_set_track_at(bloops *B, bloopsatrack *track, int num)
 {
   bloopsatrack *old_track;
   old_track = B->tracks[num];
@@ -152,6 +153,17 @@ bloops_track_at(bloops *B, bloopsatrack *track, int num)
   }
   if (old_track != NULL) {
     bloops_track_destroy(old_track);
+  }
+}
+
+void
+_bloops_track_add(bloops *B, bloopsatrack *track) {
+  int i;
+  for (i = 0; i < BLOOPS_MAX_TRACKS; i++) {
+    if (B->tracks[i] == NULL) {
+      bloops_set_track_at(B, track, i);
+      break;
+    }
   }
 }
 
