@@ -175,12 +175,7 @@ bloops_track(bloops *B, bloopsaphone *P, char *track, int tracklen)
   %% write init;
   %% write exec;
 
-  S->P = bloops_square();
-  if (S->P == NULL) {
-    free(S);
-    S = NULL;
-  }
-  bloops_sound_copy(S->P, P);
+  memcpy(&S->params, &P->params, sizeof(bloopsaparams));
 
   _bloops_track_add(B, S);
 
@@ -393,7 +388,7 @@ bloops_note_freq(char note, int octave)
   return 0.0;
 }
 
-#define KEY(name) key = (void *)&P->name
+#define KEY(name) key = (void *)&P->params.name
 
 %%{
   machine bloopserial;
@@ -440,10 +435,10 @@ bloops_note_freq(char note, int octave)
 
   main := |*
     key space+ float space*   => { *((float *)key) = fval; };
-    "type" space+ "square"    => { P->type = BLOOPS_SQUARE; };
-    "type" space+ "sawtooth"  => { P->type = BLOOPS_SAWTOOTH; };
-    "type" space+ "sine"      => { P->type = BLOOPS_SINE; };
-    "type" space+ "noise"     => { P->type = BLOOPS_NOISE; };
+    "type" space+ "square"    => { P->params.type = BLOOPS_SQUARE; };
+    "type" space+ "sawtooth"  => { P->params.type = BLOOPS_SAWTOOTH; };
+    "type" space+ "sine"      => { P->params.type = BLOOPS_SINE; };
+    "type" space+ "noise"     => { P->params.type = BLOOPS_NOISE; };
     space+;
   *|;
 
@@ -491,64 +486,64 @@ bloops_sound_str(bloopsaphone *P)
 {
   char *lines = (char *)malloc(4096), *str = lines;
   bloopsaphone *sq = bloops_square();
-  if (P->type == BLOOPS_SQUARE)
+  if (P->params.type == BLOOPS_SQUARE)
     str += sprintf(str, "type square\n");
-  else if (P->type == BLOOPS_SAWTOOTH)
+  else if (P->params.type == BLOOPS_SAWTOOTH)
     str += sprintf(str, "type sawtooth\n");
-  else if (P->type == BLOOPS_SINE)
+  else if (P->params.type == BLOOPS_SINE)
     str += sprintf(str, "type sine\n");
-  else if (P->type == BLOOPS_NOISE)
+  else if (P->params.type == BLOOPS_NOISE)
     str += sprintf(str, "type noise\n");
 
-  if (P->volume != sq->volume)
-    str += sprintf(str, "volume %0.3f\n", P->volume);
-  if (P->punch != sq->punch)
-    str += sprintf(str, "punch %0.3f\n", P->punch);
-  if (P->attack != sq->attack)
-    str += sprintf(str, "attack %0.3f\n", P->attack);
-  if (P->sustain != sq->sustain)
-    str += sprintf(str, "sustain %0.3f\n", P->sustain);
-  if (P->decay != sq->decay)
-    str += sprintf(str, "decay %0.3f\n", P->decay);
-  if (P->freq != sq->freq)
-    str += sprintf(str, "freq %0.3f\n", P->freq);
-  if (P->limit != sq->limit)
-    str += sprintf(str, "limit %0.3f\n", P->limit);
-  if (P->slide != sq->slide)
-    str += sprintf(str, "slide %0.3f\n", P->slide);
-  if (P->dslide != sq->dslide)
-    str += sprintf(str, "dslide %0.3f\n", P->dslide);
-  if (P->square != sq->square)
-    str += sprintf(str, "square %0.3f\n", P->square);
-  if (P->sweep != sq->sweep)
-    str += sprintf(str, "sweep %0.3f\n", P->sweep);
-  if (P->vibe != sq->vibe)
-    str += sprintf(str, "vibe %0.3f\n", P->vibe);
-  if (P->vspeed != sq->vspeed)
-    str += sprintf(str, "vspeed %0.3f\n", P->vspeed);
-  if (P->vdelay != sq->vdelay)
-    str += sprintf(str, "vdelay %0.3f\n", P->vdelay);
-  if (P->lpf != sq->lpf)
-    str += sprintf(str, "lpf %0.3f\n", P->lpf);
-  if (P->lsweep != sq->lsweep)
-    str += sprintf(str, "lsweep %0.3f\n", P->lsweep);
-  if (P->resonance != sq->resonance)
-    str += sprintf(str, "resonance %0.3f\n", P->resonance);
-  if (P->hpf != sq->hpf)
-    str += sprintf(str, "hpf %0.3f\n", P->hpf);
-  if (P->hsweep != sq->hsweep)
-    str += sprintf(str, "hsweep %0.3f\n", P->hsweep);
-  if (P->arp != sq->arp)
-    str += sprintf(str, "arp %0.3f\n", P->arp);
-  if (P->aspeed != sq->aspeed)
-    str += sprintf(str, "aspeed %0.3f\n", P->aspeed);
-  if (P->phase != sq->phase)
-    str += sprintf(str, "phase %0.3f\n", P->phase);
-  if (P->psweep != sq->psweep)
-    str += sprintf(str, "psweep %0.3f\n", P->psweep);
-  if (P->repeat != sq->repeat)
-    str += sprintf(str, "repeat %0.3f\n", P->repeat);
+  if (P->params.volume != sq->params.volume)
+    str += sprintf(str, "volume %0.3f\n", P->params.volume);
+  if (P->params.punch != sq->params.punch)
+    str += sprintf(str, "punch %0.3f\n", P->params.punch);
+  if (P->params.attack != sq->params.attack)
+    str += sprintf(str, "attack %0.3f\n", P->params.attack);
+  if (P->params.sustain != sq->params.sustain)
+    str += sprintf(str, "sustain %0.3f\n", P->params.sustain);
+  if (P->params.decay != sq->params.decay)
+    str += sprintf(str, "decay %0.3f\n", P->params.decay);
+  if (P->params.freq != sq->params.freq)
+    str += sprintf(str, "freq %0.3f\n", P->params.freq);
+  if (P->params.limit != sq->params.limit)
+    str += sprintf(str, "limit %0.3f\n", P->params.limit);
+  if (P->params.slide != sq->params.slide)
+    str += sprintf(str, "slide %0.3f\n", P->params.slide);
+  if (P->params.dslide != sq->params.dslide)
+    str += sprintf(str, "dslide %0.3f\n", P->params.dslide);
+  if (P->params.square != sq->params.square)
+    str += sprintf(str, "square %0.3f\n", P->params.square);
+  if (P->params.sweep != sq->params.sweep)
+    str += sprintf(str, "sweep %0.3f\n", P->params.sweep);
+  if (P->params.vibe != sq->params.vibe)
+    str += sprintf(str, "vibe %0.3f\n", P->params.vibe);
+  if (P->params.vspeed != sq->params.vspeed)
+    str += sprintf(str, "vspeed %0.3f\n", P->params.vspeed);
+  if (P->params.vdelay != sq->params.vdelay)
+    str += sprintf(str, "vdelay %0.3f\n", P->params.vdelay);
+  if (P->params.lpf != sq->params.lpf)
+    str += sprintf(str, "lpf %0.3f\n", P->params.lpf);
+  if (P->params.lsweep != sq->params.lsweep)
+    str += sprintf(str, "lsweep %0.3f\n", P->params.lsweep);
+  if (P->params.resonance != sq->params.resonance)
+    str += sprintf(str, "resonance %0.3f\n", P->params.resonance);
+  if (P->params.hpf != sq->params.hpf)
+    str += sprintf(str, "hpf %0.3f\n", P->params.hpf);
+  if (P->params.hsweep != sq->params.hsweep)
+    str += sprintf(str, "hsweep %0.3f\n", P->params.hsweep);
+  if (P->params.arp != sq->params.arp)
+    str += sprintf(str, "arp %0.3f\n", P->params.arp);
+  if (P->params.aspeed != sq->params.aspeed)
+    str += sprintf(str, "aspeed %0.3f\n", P->params.aspeed);
+  if (P->params.phase != sq->params.phase)
+    str += sprintf(str, "phase %0.3f\n", P->params.phase);
+  if (P->params.psweep != sq->params.psweep)
+    str += sprintf(str, "psweep %0.3f\n", P->params.psweep);
+  if (P->params.repeat != sq->params.repeat)
+    str += sprintf(str, "repeat %0.3f\n", P->params.repeat);
 
-  free(sq);
+  bloops_sound_destroy(sq);
   return lines;
 }

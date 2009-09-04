@@ -69,19 +69,19 @@ bloops_remove(bloops *B)
 static void
 bloops_reset_track(bloopsatrack *A)
 {
-  A->period = 100.0 / (A->P->freq * A->P->freq + 0.001);
-  A->maxperiod = 100.0 / (A->P->limit * A->P->limit + 0.001);
-  A->slide = 1.0 - pow((double)A->P->slide, 3.0) * 0.01;
-  A->dslide = -pow((double)A->P->dslide, 3.0) * 0.000001;
-  A->square = 0.5f - A->P->square * 0.5f;
-  A->sweep = -A->P->sweep * 0.00005f;
-  if (A->P->arp >= 0.0f)
-    A->arp = 1.0 - pow((double)A->P->arp, 2.0) * 0.9;
+  A->period = 100.0 / (A->params.freq * A->params.freq + 0.001);
+  A->maxperiod = 100.0 / (A->params.limit * A->params.limit + 0.001);
+  A->slide = 1.0 - pow((double)A->params.slide, 3.0) * 0.01;
+  A->dslide = -pow((double)A->params.dslide, 3.0) * 0.000001;
+  A->square = 0.5f - A->params.square * 0.5f;
+  A->sweep = -A->params.sweep * 0.00005f;
+  if (A->params.arp >= 0.0f)
+    A->arp = 1.0 - pow((double)A->params.arp, 2.0) * 0.9;
   else
-    A->arp = 1.0 + pow((double)A->P->arp, 2.0) * 10.0;
+    A->arp = 1.0 + pow((double)A->params.arp, 2.0) * 10.0;
   A->atime = 0;
-  A->alimit = (int)(pow(1.0f - A->P->aspeed, 2.0f) * 20000 + 32);
-  if (A->P->aspeed == 1.0f)
+  A->alimit = (int)(pow(1.0f - A->params.aspeed, 2.0f) * 20000 + 32);
+  if (A->params.aspeed == 1.0f)
     A->alimit = 0;
 }
 
@@ -91,29 +91,29 @@ bloops_start_track(bloopsatrack *A) {
   A->phase = 0;
   A->filter[0] = 0.0f;
   A->filter[1] = 0.0f;
-  A->filter[2] = pow(A->P->lpf, 3.0f) * 0.1f;
-  A->filter[3] = 1.0f + A->P->lsweep * 0.0001f;
-  A->filter[4] = 5.0f / (1.0f + pow(A->P->resonance, 2.0f) * 20.0f) * (0.01f + A->filter[2]);
+  A->filter[2] = pow(A->params.lpf, 3.0f) * 0.1f;
+  A->filter[3] = 1.0f + A->params.lsweep * 0.0001f;
+  A->filter[4] = 5.0f / (1.0f + pow(A->params.resonance, 2.0f) * 20.0f) * (0.01f + A->filter[2]);
   if (A->filter[4] > 0.8f) A->filter[4] = 0.8f;
   A->filter[5] = 0.0f;
-  A->filter[6] = pow(A->P->hpf, 2.0f) * 0.1f;
-  A->filter[7] = 1.0 + A->P->hsweep * 0.0003f;
+  A->filter[6] = pow(A->params.hpf, 2.0f) * 0.1f;
+  A->filter[7] = 1.0 + A->params.hsweep * 0.0003f;
 
   A->vibe = 0.0f;
-  A->vspeed = pow(A->P->vspeed, 2.0f) * 0.01f;
-  A->vdelay = A->P->vibe * 0.5f;
+  A->vspeed = pow(A->params.vspeed, 2.0f) * 0.01f;
+  A->vdelay = A->params.vibe * 0.5f;
 
   A->volume = 0.0f;
   A->stage = 0;
   A->time = 0;
-  A->length[0] = (int)(A->P->attack * A->P->attack * 100000.0f);
-  A->length[1] = (int)(A->P->sustain * A->P->sustain * 100000.0f);
-  A->length[2] = (int)(A->P->decay * A->P->decay * 100000.0f);
+  A->length[0] = (int)(A->params.attack * A->params.attack * 100000.0f);
+  A->length[1] = (int)(A->params.sustain * A->params.sustain * 100000.0f);
+  A->length[2] = (int)(A->params.decay * A->params.decay * 100000.0f);
 
-  A->fphase = pow(A->P->phase, 2.0f) * 1020.0f;
-  if (A->P->phase < 0.0f) A->fphase = -A->fphase;
-  A->dphase = pow(A->P->psweep, 2.0f) * 1.0f;
-  if (A->P->psweep < 0.0f) A->dphase = -A->dphase;
+  A->fphase = pow(A->params.phase, 2.0f) * 1020.0f;
+  if (A->params.phase < 0.0f) A->fphase = -A->fphase;
+  A->dphase = pow(A->params.psweep, 2.0f) * 1.0f;
+  if (A->params.psweep < 0.0f) A->dphase = -A->dphase;
   A->iphase = abs((int)A->fphase);
   A->phasex = 0;
 
@@ -122,8 +122,8 @@ bloops_start_track(bloopsatrack *A) {
     A->noise[i] = frnd(2.0f) - 1.0f;
 
   A->repeat = 0;
-  A->limit = (int)(pow(1.0f - A->P->repeat, 2.0f) * 20000 + 32);
-  if (A->P->repeat == 0.0f)
+  A->limit = (int)(pow(1.0f - A->params.repeat, 2.0f) * 20000 + 32);
+  if (A->params.repeat == 0.0f)
     A->limit = 0;
   A->playing = BLOOPS_PLAY;
 }
@@ -203,7 +203,7 @@ bloops_synth(int length, float* buffer)
             if (A->nextnote[1] < A->nlen)
             {
               bloopsanote *note = &A->notes[A->nextnote[1]];
-              float freq = A->P->freq;
+              float freq = A->params.freq;
               if (note->tone != 'n')
                 freq = bloops_note_freq(note->tone, (int)note->octave);
               if (freq == 0.0f) {
@@ -214,26 +214,26 @@ bloops_synth(int length, float* buffer)
                 bloopsafx *fx = note->FX;
                 while (fx) {
                   switch (fx->cmd) {
-                    case BLOOPS_FX_VOLUME:    FX(fx, A->P->volume);     break;
-                    case BLOOPS_FX_PUNCH:     FX(fx, A->P->punch);      break;
-                    case BLOOPS_FX_ATTACK:    FX(fx, A->P->attack);     break;
-                    case BLOOPS_FX_SUSTAIN:   FX(fx, A->P->sustain);    break;
-                    case BLOOPS_FX_DECAY:     FX(fx, A->P->decay);      break;
-                    case BLOOPS_FX_SQUARE:    FX(fx, A->P->square);     break;
-                    case BLOOPS_FX_SWEEP:     FX(fx, A->P->sweep);      break;
-                    case BLOOPS_FX_VIBE:      FX(fx, A->P->vibe);       break;
-                    case BLOOPS_FX_VSPEED:    FX(fx, A->P->vspeed);     break;
-                    case BLOOPS_FX_VDELAY:    FX(fx, A->P->vdelay);     break;
-                    case BLOOPS_FX_LPF:       FX(fx, A->P->lpf);        break;
-                    case BLOOPS_FX_LSWEEP:    FX(fx, A->P->lsweep);     break;
-                    case BLOOPS_FX_RESONANCE: FX(fx, A->P->resonance);  break;
-                    case BLOOPS_FX_HPF:       FX(fx, A->P->hpf);        break;
-                    case BLOOPS_FX_HSWEEP:    FX(fx, A->P->hsweep);     break;
-                    case BLOOPS_FX_ARP:       FX(fx, A->P->arp);        break;
-                    case BLOOPS_FX_ASPEED:    FX(fx, A->P->aspeed);     break;
-                    case BLOOPS_FX_PHASE:     FX(fx, A->P->phase);      break;
-                    case BLOOPS_FX_PSWEEP:    FX(fx, A->P->psweep);     break;
-                    case BLOOPS_FX_REPEAT:    FX(fx, A->P->repeat);     break;
+                    case BLOOPS_FX_VOLUME:    FX(fx, A->params.volume);     break;
+                    case BLOOPS_FX_PUNCH:     FX(fx, A->params.punch);      break;
+                    case BLOOPS_FX_ATTACK:    FX(fx, A->params.attack);     break;
+                    case BLOOPS_FX_SUSTAIN:   FX(fx, A->params.sustain);    break;
+                    case BLOOPS_FX_DECAY:     FX(fx, A->params.decay);      break;
+                    case BLOOPS_FX_SQUARE:    FX(fx, A->params.square);     break;
+                    case BLOOPS_FX_SWEEP:     FX(fx, A->params.sweep);      break;
+                    case BLOOPS_FX_VIBE:      FX(fx, A->params.vibe);       break;
+                    case BLOOPS_FX_VSPEED:    FX(fx, A->params.vspeed);     break;
+                    case BLOOPS_FX_VDELAY:    FX(fx, A->params.vdelay);     break;
+                    case BLOOPS_FX_LPF:       FX(fx, A->params.lpf);        break;
+                    case BLOOPS_FX_LSWEEP:    FX(fx, A->params.lsweep);     break;
+                    case BLOOPS_FX_RESONANCE: FX(fx, A->params.resonance);  break;
+                    case BLOOPS_FX_HPF:       FX(fx, A->params.hpf);        break;
+                    case BLOOPS_FX_HSWEEP:    FX(fx, A->params.hsweep);     break;
+                    case BLOOPS_FX_ARP:       FX(fx, A->params.arp);        break;
+                    case BLOOPS_FX_ASPEED:    FX(fx, A->params.aspeed);     break;
+                    case BLOOPS_FX_PHASE:     FX(fx, A->params.phase);      break;
+                    case BLOOPS_FX_PSWEEP:    FX(fx, A->params.psweep);     break;
+                    case BLOOPS_FX_REPEAT:    FX(fx, A->params.repeat);     break;
                   }
                   fx = fx->next;
                 }
@@ -281,7 +281,7 @@ bloops_synth(int length, float* buffer)
         if (A->period > A->maxperiod)
         {
           A->period = A->maxperiod;
-          if (A->P->limit > 0.0f)
+          if (A->params.limit > 0.0f)
             A->playing = BLOOPS_STOP;
         }
 
@@ -312,7 +312,7 @@ bloops_synth(int length, float* buffer)
             A->volume = (float)A->time / A->length[0];
           break;
           case 1:
-            A->volume = 1.0f + (1.0f - (float)A->time / A->length[1]) * 2.0f * A->P->punch;
+            A->volume = 1.0f + (1.0f - (float)A->time / A->length[1]) * 2.0f * A->params.punch;
           break;
           case 2:
             A->volume = 1.0f - (float)A->time / A->length[2];
@@ -338,13 +338,13 @@ bloops_synth(int length, float* buffer)
           if (A->phase >= period)
           {
             A->phase %= period;
-            if (A->P->type == BLOOPS_NOISE)
+            if (A->params.type == BLOOPS_NOISE)
               for (i = 0; i < 32; i++)
                 A->noise[i] = frnd(2.0f) - 1.0f;
           }
 
           float fp = (float)A->phase / period;
-          switch (A->P->type)
+          switch (A->params.type)
           {
             case BLOOPS_SQUARE:
               if (fp < A->square)
@@ -367,7 +367,7 @@ bloops_synth(int length, float* buffer)
           A->filter[2] *= A->filter[3];
           if (A->filter[2] < 0.0f) A->filter[2] = 0.0f;
           if (A->filter[2] > 0.1f) A->filter[2] = 0.1f;
-          if (A->P->lpf != 1.0f)
+          if (A->params.lpf != 1.0f)
           {
             A->filter[1] += (sample - A->filter[0]) * A->filter[2];
             A->filter[1] -= A->filter[1] * A->filter[4];
@@ -390,7 +390,7 @@ bloops_synth(int length, float* buffer)
           ssample += sample * A->volume;
         }
         ssample = ssample / 8 * B->volume;
-        ssample *= 2.0f * A->P->volume;
+        ssample *= 2.0f * A->params.volume;
 
         if (ssample > 1.0f)  ssample = 1.0f;
         if (ssample < -1.0f) ssample = -1.0f;
@@ -471,12 +471,12 @@ bloops_square()
 {
   bloopsaphone *P = (bloopsaphone *)calloc(sizeof(bloopsaphone), 1);
   P->refcount = 1;
-  P->type = BLOOPS_SQUARE;
-  P->volume = 0.5f;
-  P->sustain = 0.3f;
-  P->decay = 0.4f;
-  P->freq = 0.3f;
-  P->lpf = 1.0f;
+  P->params.type = BLOOPS_SQUARE;
+  P->params.volume = 0.5f;
+  P->params.sustain = 0.3f;
+  P->params.decay = 0.4f;
+  P->params.freq = 0.3f;
+  P->params.lpf = 1.0f;
   return P;
 }
 
@@ -561,10 +561,6 @@ bloops_track_destroy(bloopsatrack *track)
 {
   if (--track->refcount) {
     return;
-  }
-  if (track->P != NULL) {
-    bloops_sound_destroy(track->P);
-    track->P = NULL;
   }
   if (track->notes != NULL) {
     bloops_notes_destroy(track->notes, track->nlen);

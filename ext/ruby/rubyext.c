@@ -100,7 +100,7 @@ VALUE
 rb_bloops_sound(VALUE self, VALUE type)
 {
   bloopsaphone *P = bloops_square();
-  P->type = (unsigned char)NUM2INT(type);
+  P->params.type = (unsigned char)NUM2INT(type);
   return Data_Wrap_Struct(cSound, NULL, rb_bloops_sound_free, P);
 }
 
@@ -134,7 +134,7 @@ rb_bloops_test(VALUE self)
   bloops_tempo(B, 120);
   T = bloops_track2(B, P, "C");
   T->notes[0].tone = 'n';
-  T->P = P;
+  memcpy(&T->params, &P->params, sizeof(bloopsaparams));
   bloops_play(B);
   bloops_track_destroy(T);
   bloops_destroy(B);
@@ -147,7 +147,7 @@ rb_bloops_get_type(VALUE self)
 {
   bloopsaphone *P;
   Data_Get_Struct(self, bloopsaphone, P);
-  return INT2NUM((int)P->type);
+  return INT2NUM((int)P->params.type);
 }
 
 VALUE
@@ -155,7 +155,7 @@ rb_bloops_set_type(VALUE self, VALUE type)
 {
   bloopsaphone *P;
   Data_Get_Struct(self, bloopsaphone, P);
-  P->type = (unsigned char)NUM2INT(type);
+  P->params.type = (unsigned char)NUM2INT(type);
   return type;
 }
 
@@ -163,12 +163,12 @@ rb_bloops_set_type(VALUE self, VALUE type)
   VALUE rb_bloops_get_##name(VALUE self) { \
     bloopsaphone *P; \
     Data_Get_Struct(self, bloopsaphone, P); \
-    return rb_float_new(P->name); \
+    return rb_float_new(P->params.name); \
   } \
   VALUE rb_bloops_set_##name(VALUE self, VALUE f) { \
     bloopsaphone *P; \
     Data_Get_Struct(self, bloopsaphone, P); \
-    P->name = (float)NUM2DBL(f); \
+    P->params.name = (float)NUM2DBL(f); \
     return f; \
   }
 

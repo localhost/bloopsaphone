@@ -42,7 +42,6 @@ typedef enum {
 } bloopsafxcmd;
 
 typedef struct {
-  unsigned refcount;
   bloopswaveform type;
   unsigned char pan;
   float volume;
@@ -58,6 +57,11 @@ typedef struct {
   float arp, aspeed;                // arpeggiator
   float phase, psweep;              // phaser
   float repeat;                     // repeats?
+} bloopsaparams;
+
+typedef struct {
+  unsigned refcount;
+  bloopsaparams params;
 } bloopsaphone;
 
 #define BLOOPS_HI_OCTAVE 8
@@ -76,10 +80,10 @@ typedef struct {
 
 typedef struct {
   unsigned refcount;
-  bloopsaphone *P;
   int nlen, capa;
   bloopsanote *notes;
 
+  bloopsaparams params;
   int frames, nextnote[2];
   float volume, freq;
   unsigned char playing;
