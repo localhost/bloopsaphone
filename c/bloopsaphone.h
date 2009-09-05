@@ -83,7 +83,11 @@ typedef struct {
   unsigned refcount;
   int nlen, capa;
   bloopsanote *notes;
+  bloopsaparams params;
+} bloopsatrack;
 
+typedef struct {
+  bloopsatrack *track;
   bloopsaparams params;
   int frames, nextnote[2];
   float volume, freq;
@@ -100,7 +104,7 @@ typedef struct {
   int repeat, limit;
   double arp;
   int atime, alimit;
-} bloopsatrack;
+} bloopsavoice;
 
 #define BLOOPS_MAX_TRACKS 64
 #define BLOOPS_MAX_CHANNELS 64
@@ -109,7 +113,7 @@ typedef struct {
   unsigned refcount;
   int tempo;
   float volume;
-  bloopsatrack *tracks[BLOOPS_MAX_TRACKS];
+  bloopsavoice voices[BLOOPS_MAX_TRACKS];
   bloopsastate state;
 } bloops;
 

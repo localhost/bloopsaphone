@@ -67,8 +67,9 @@ bloops_remove(bloops *B)
 }
 
 static void
-bloops_reset_track(bloopsatrack *A)
+bloops_reset_voice(bloopsavoice *A)
 {
+  memcpy(&A->params, &A->track->params, sizeof(bloopsaparams));
   A->period = 100.0 / (A->params.freq * A->params.freq + 0.001);
   A->maxperiod = 100.0 / (A->params.limit * A->params.limit + 0.001);
   A->slide = 1.0 - pow((double)A->params.slide, 3.0) * 0.01;
@@ -86,7 +87,7 @@ bloops_reset_track(bloopsatrack *A)
 }
 
 static void
-bloops_start_track(bloopsatrack *A) {
+bloops_start_voice(bloopsavoice *A) {
   int i = 0;
   A->phase = 0;
   A->filter[0] = 0.0f;
@@ -146,22 +147,27 @@ bloops_tempo(bloops *B, int tempo)
 void
 bloops_set_track_at(bloops *B, bloopsatrack *track, int num)
 {
+  bloopsavoice *voice;
   bloopsatrack *old_track;
-  old_track = B->tracks[num];
-  B->tracks[num] = track;
+  voice = &B->voices[num];
+  old_track = voice->track;
+  voice->track = track;
   if (track != NULL) {
     bloops_track_ref(track);
   }
   if (old_track != NULL) {
     bloops_track_destroy(old_track);
   }
+  voice->state = BLOOPS_STOP;
+  voice->nextnote[0] = 0;
+  voice->nextnote[1] = 0;
 }
 
 void
 _bloops_track_add(bloops *B, bloopsatrack *track) {
   int i;
   for (i = 0; i < BLOOPS_MAX_TRACKS; i++) {
-    if (B->tracks[i] == NULL) {
+    if (B->voices[i].track == NULL) {
       bloops_set_track_at(B, track, i);
       break;
     }
@@ -188,21 +194,22 @@ bloops_synth(int length, float* buffer)
     {
       int moreframes = 0;
       bloops *B = MIXER->B[bi];
-      if (B == NULL || B->state == BLOOPS_STOP)
+      if (B == NULL)
         continue;
       for (t = 0; t < BLOOPS_MAX_TRACKS; t++)
       {
-        bloopsatrack *A = B->tracks[t];
-        if (A == NULL)
+        bloopsavoice *A = &B->voices[t];
+        bloopsatrack *track = A->track;
+        if (track == NULL)
           continue;
 
-        if (A->notes)
+        if (track->notes)
         {
           if (A->frames == A->nextnote[0])
           {
-            if (A->nextnote[1] < A->nlen)
+            if (A->nextnote[1] < track->nlen)
             {
-              bloopsanote *note = &A->notes[A->nextnote[1]];
+              bloopsanote *note = &track->notes[A->nextnote[1]];
               float freq = A->params.freq;
               if (note->tone != 'n')
                 freq = bloops_note_freq(note->tone, (int)note->octave);
@@ -210,7 +217,7 @@ bloops_synth(int length, float* buffer)
                 A->period = 0.0f;
                 A->state = BLOOPS_STOP;
               } else {
-                bloopsanote *note = &A->notes[A->nextnote[1]];
+                bloopsanote *note = &track->notes[A->nextnote[1]];
                 bloopsafx *fx = note->FX;
                 while (fx) {
                   switch (fx->cmd) {
@@ -238,8 +245,8 @@ bloops_synth(int length, float* buffer)
                   fx = fx->next;
                 }
 
-                bloops_reset_track(A);
-                bloops_start_track(A);
+                bloops_reset_voice(A);
+                bloops_start_voice(A);
                 A->period = 100.0 / (freq * freq + 0.001);
               }
 
@@ -248,7 +255,7 @@ bloops_synth(int length, float* buffer)
             A->nextnote[1]++;
           }
 
-          if (A->nextnote[1] <= A->nlen)
+          if (A->nextnote[1] <= track->nlen)
             moreframes++;
         }
         else
@@ -266,7 +273,7 @@ bloops_synth(int length, float* buffer)
         if (A->limit != 0 && A->repeat >= A->limit)
         {
           A->repeat = 0;
-          bloops_reset_track(A);
+          bloops_reset_voice(A);
         }
 
         A->atime++;
@@ -419,11 +426,11 @@ bloops_play(bloops *B)
   int i;
 
   for (i = 0; i < BLOOPS_MAX_TRACKS; i++)
-    if (B->tracks[i] != NULL) {
-      bloopsatrack *A;
-      A = B->tracks[i];
-      bloops_reset_track(A);
-      bloops_start_track(A);
+    if (B->voices[i].track != NULL) {
+      bloopsavoice *A;
+      A = &B->voices[i];
+      bloops_reset_voice(A);
+      bloops_start_voice(A);
       A->frames = 0;
       A->nextnote[0] = 0;
       A->nextnote[1] = 0;
@@ -492,7 +499,7 @@ bloops_new()
   B->tempo = 120;
   B->state = BLOOPS_STOP;
   for (i = 0; i < BLOOPS_MAX_TRACKS; i++) {
-    B->tracks[i] = NULL;
+    B->voices[i].track = NULL;
   }
 
   if (MIXER == NULL)
