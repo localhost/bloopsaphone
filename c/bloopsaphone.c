@@ -69,7 +69,6 @@ bloops_remove(bloops *B)
 static void
 bloops_reset_voice(bloopsavoice *A)
 {
-  memcpy(&A->params, &A->track->params, sizeof(bloopsaparams));
   A->period = 100.0 / (A->params.freq * A->params.freq + 0.001);
   A->maxperiod = 100.0 / (A->params.limit * A->params.limit + 0.001);
   A->slide = 1.0 - pow((double)A->params.slide, 3.0) * 0.01;
@@ -159,6 +158,8 @@ bloops_set_track_at(bloops *B, bloopsatrack *track, int num)
     bloops_track_destroy(old_track);
   }
   voice->state = BLOOPS_STOP;
+  memcpy(&voice->params, &track->params, sizeof(bloopsaparams));
+  voice->frames = 0;
   voice->nextnote[0] = 0;
   voice->nextnote[1] = 0;
 }
@@ -425,16 +426,18 @@ bloops_play(bloops *B)
 {
   int i;
 
-  for (i = 0; i < BLOOPS_MAX_TRACKS; i++)
-    if (B->voices[i].track != NULL) {
-      bloopsavoice *A;
-      A = &B->voices[i];
+  for (i = 0; i < BLOOPS_MAX_TRACKS; i++) {
+    bloopsavoice *A;
+    A = &B->voices[i];
+    if (A->track != NULL) {
+      memcpy(&A->params, &A->track->params, sizeof(bloopsaparams));
       bloops_reset_voice(A);
       bloops_start_voice(A);
       A->frames = 0;
       A->nextnote[0] = 0;
       A->nextnote[1] = 0;
     }
+  }
 
   bloops_remove(B);
   for (i = 0; i < BLOOPS_MAX_CHANNELS; i++) {
@@ -578,7 +581,6 @@ bloops_track_destroy(bloopsatrack *track)
 void bloops_sound_copy(bloopsaphone *dest, bloopsaphone const *src) {
   unsigned saved_refcount;
   saved_refcount = dest->refcount;
-  memcpy(dest, src, sizeof(bloopsaphone));
   dest->refcount = saved_refcount;
 }
 
