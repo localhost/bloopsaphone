@@ -579,9 +579,7 @@ bloops_track_destroy(bloopsatrack *track)
 }
 
 void bloops_sound_copy(bloopsaphone *dest, bloopsaphone const *src) {
-  unsigned saved_refcount;
-  saved_refcount = dest->refcount;
-  dest->refcount = saved_refcount;
+  memcpy(&dest->params, &src->params, sizeof(bloopsaparams));
 }
 
 void bloops_sound_ref(bloopsaphone *sound) {
