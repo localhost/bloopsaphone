@@ -125,7 +125,7 @@ bloops_start_track(bloopsatrack *A) {
   A->limit = (int)(pow(1.0f - A->params.repeat, 2.0f) * 20000 + 32);
   if (A->params.repeat == 0.0f)
     A->limit = 0;
-  A->playing = BLOOPS_PLAY;
+  A->state = BLOOPS_PLAY;
 }
 
 void
@@ -171,7 +171,7 @@ _bloops_track_add(bloops *B, bloopsatrack *track) {
 int
 bloops_is_done(bloops *B)
 {
-  return B->play == BLOOPS_STOP;
+  return B->state == BLOOPS_STOP;
 }
 
 static void
@@ -188,7 +188,7 @@ bloops_synth(int length, float* buffer)
     {
       int moreframes = 0;
       bloops *B = MIXER->B[bi];
-      if (B == NULL || B->play == BLOOPS_STOP)
+      if (B == NULL || B->state == BLOOPS_STOP)
         continue;
       for (t = 0; t < BLOOPS_MAX_TRACKS; t++)
       {
@@ -208,7 +208,7 @@ bloops_synth(int length, float* buffer)
                 freq = bloops_note_freq(note->tone, (int)note->octave);
               if (freq == 0.0f) {
                 A->period = 0.0f;
-                A->playing = BLOOPS_STOP;
+                A->state = BLOOPS_STOP;
               } else {
                 bloopsanote *note = &A->notes[A->nextnote[1]];
                 bloopsafx *fx = note->FX;
@@ -258,7 +258,7 @@ bloops_synth(int length, float* buffer)
 
         A->frames++;
 
-        if (A->playing == BLOOPS_STOP)
+        if (A->state == BLOOPS_STOP)
           continue;
 
         samplecount++;
@@ -282,7 +282,7 @@ bloops_synth(int length, float* buffer)
         {
           A->period = A->maxperiod;
           if (A->params.limit > 0.0f)
-            A->playing = BLOOPS_STOP;
+            A->state = BLOOPS_STOP;
         }
 
         float rfperiod = A->period;
@@ -304,7 +304,7 @@ bloops_synth(int length, float* buffer)
           A->time = 0;
           A->stage++;
           if (A->stage == 3)
-            A->playing = BLOOPS_STOP;
+            A->state = BLOOPS_STOP;
         }
 
         switch (A->stage) {
@@ -397,7 +397,7 @@ bloops_synth(int length, float* buffer)
         allsample += ssample;
       }
       if (moreframes == 0)
-        B->play = BLOOPS_STOP;
+        B->state = BLOOPS_STOP;
     }
 
     *buffer++ = allsample;
@@ -431,7 +431,7 @@ bloops_play(bloops *B)
 
   bloops_remove(B);
   for (i = 0; i < BLOOPS_MAX_CHANNELS; i++) {
-    if (MIXER->B[i] == NULL || MIXER->B[i]->play == BLOOPS_STOP) {
+    if (MIXER->B[i] == NULL || MIXER->B[i]->state == BLOOPS_STOP) {
       bloops_ref(B);
       if (MIXER->B[i] != NULL) {
         bloops_destroy(MIXER->B[i]);
@@ -441,7 +441,7 @@ bloops_play(bloops *B)
     }
   }
 
-  B->play = BLOOPS_PLAY;
+  B->state = BLOOPS_PLAY;
   if (MIXER->stream == NULL) {
     Pa_OpenDefaultStream(&MIXER->stream, 0, 1, paFloat32,
       SAMPLE_RATE, 512, bloops_port_callback, B);
@@ -453,9 +453,9 @@ void
 bloops_stop(bloops *B)
 {
   int i, stopall = 1;
-  B->play = BLOOPS_STOP;
+  B->state = BLOOPS_STOP;
   for (i = 0; i < BLOOPS_MAX_CHANNELS; i++)
-    if (MIXER->B[i] != NULL && MIXER->B[i]->play != BLOOPS_STOP)
+    if (MIXER->B[i] != NULL && MIXER->B[i]->state != BLOOPS_STOP)
       stopall = 0;
 
   if (stopall)
@@ -490,7 +490,7 @@ bloops_new()
   B->refcount = 1;
   B->volume = 0.10f;
   B->tempo = 120;
-  B->play = BLOOPS_STOP;
+  B->state = BLOOPS_STOP;
   for (i = 0; i < BLOOPS_MAX_TRACKS; i++) {
     B->tracks[i] = NULL;
   }

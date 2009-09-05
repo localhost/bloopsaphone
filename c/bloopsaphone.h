@@ -7,9 +7,10 @@
 
 #define BLOOPSAPHONE_VERSION "1.0"
 
-#define BLOOPS_STOP 0
-#define BLOOPS_PLAY 1
-#define BLOOPS_MUTE 2
+typedef enum {
+  BLOOPS_STOP = 0,
+  BLOOPS_PLAY = 1
+} bloopsastate;
 
 typedef enum {
   BLOOPS_SQUARE = 0,
@@ -86,7 +87,7 @@ typedef struct {
   bloopsaparams params;
   int frames, nextnote[2];
   float volume, freq;
-  unsigned char playing;
+  bloopsastate state;
   int stage, time, length[3];
   double period, maxperiod, slide, dslide;
   float square, sweep;
@@ -109,7 +110,7 @@ typedef struct {
   int tempo;
   float volume;
   bloopsatrack *tracks[BLOOPS_MAX_TRACKS];
-  unsigned char play;
+  bloopsastate state;
 } bloops;
 
 typedef struct {
