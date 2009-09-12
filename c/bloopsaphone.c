@@ -158,7 +158,9 @@ bloops_set_track_at(bloops *B, bloopsatrack *track, int num)
     bloops_track_destroy(old_track);
   }
   voice->state = BLOOPS_STOP;
-  memcpy(&voice->params, &track->params, sizeof(bloopsaparams));
+  if (track != NULL) {
+    memcpy(&voice->params, &track->params, sizeof(bloopsaparams));
+  }
   voice->frames = 0;
   voice->nextnote[0] = 0;
   voice->nextnote[1] = 0;
