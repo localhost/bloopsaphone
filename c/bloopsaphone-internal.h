@@ -1,8 +1,8 @@
 //
 // threads.h - threaded garments for the bloopsaphone
 //
-#ifndef BLOOPSAPHONE_THREADS_H
-#define BLOOPSAPHONE_THREADS_H
+#ifndef BLOOPSAPHONE_INTERNAL_H
+#define BLOOPSAPHONE_INTERNAL_H
 
 #ifdef _WIN32
 #include <windows.h>

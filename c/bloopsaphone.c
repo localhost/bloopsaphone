@@ -15,7 +15,7 @@
 #include <portaudio.h>
 #include <unistd.h>
 #include "bloopsaphone.h"
-#include "threads.h"
+#include "bloopsaphone-internal.h"
 
 #ifdef PaStream
 #error ** Looks like you're linking against PortAudio 1.8!
